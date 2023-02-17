@@ -1,9 +1,10 @@
-import { Resolver, Query } from '@nestjs/graphql';
+import { Resolver, Query, Args } from '@nestjs/graphql';
+import { Token } from './dto/token.dto';
 
 @Resolver()
 export class AuthResolver {
-  @Query(() => String)
-  async hello() {
-    return 'hello';
+  @Query(() => Boolean)
+  async authenticate(@Args('token') args: Token): Promise<boolean> {
+    return args.token == 'key';
   }
 }

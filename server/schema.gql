@@ -3,5 +3,10 @@
 # ------------------------------------------------------
 
 type Query {
-  hello: String!
+  authenticate(token: Token!): Boolean!
+}
+
+"""JWT Token"""
+input Token {
+  token: String!
 }
