@@ -1,3 +1,7 @@
+# Virtual environments
 venv/
+
+# Generated files
 build/
 dist/
+sailauth.egg-info/
