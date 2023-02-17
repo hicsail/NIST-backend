@@ -103,15 +103,11 @@ class SAILAuth(object):
         # Otherwise check for a normal Swift request
         return env.get('HTTP_X_AUTH_TOKEN', None)
 
-    def get_account(self, env):
+    def get_account(self, token):
         """
-        Get the account regardless of the if its a S3 request or a plain
-        Sift request
+        Get the target account from the token
         """
-        s3 = env.get('swift3.auth_details', None)
-        if s3:
-            return s3.get('account', None)
-        return env.get('HTTP_X_AUTH_USER', None)
+        return 'test'
 
     def handle_auth(self, env, start_response):
         """
@@ -162,6 +158,12 @@ class SAILAuth(object):
         """
         return True
 
+    def get_updated_path(self, path, account):
+        parts = path.split('/')
+        if len(parts) > 2:
+            parts[2] = account
+        return '/'.join(parts)
+
     def authorize(self, req):
         """
         Check to see if the user is authorized to access the given resource
@@ -170,7 +172,12 @@ class SAILAuth(object):
         token = self.get_token(req.environ)
         if token is None:
             return HTTPUnauthorized(request=req, body='No token provided')
-        self.logger.info('Authorization token: {}'.format(token))
+        account = self.get_account(req.environ)
+
+        # Update the request path to use the target account
+        req.environ['PATH_INFO'] = self.get_updated_path(req.environ['PATH_INFO'], account)
+
+        self.logger.info('Authorization account: {}, token: {}'.format(account, token))
         return None
 
 
