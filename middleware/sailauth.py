@@ -69,13 +69,15 @@ class SAILAuth(object):
         req = Request(env)
 
         # Grab the token from the request and make sure it exists
-        provided_token = req.headers.get('x-auth-token', None)
+        provided_token = self.get_token(env)
         if provided_token is None:
             return HTTPUnauthorized(request=req, body='No token provided')(env, start_response)
 
         # Make the request agains the SAIL authentication system
         if not self.authenticate_jwt(provided_token):
             return HTTPUnauthorized(request=req, body='Invalid token')(env, start_response)
+
+        self.logger.info('Token Provided: {}'.format(provided_token))
 
         # Otherwise set the REMOTE_USER to the token and add in the
         # authroization handler
@@ -85,6 +87,21 @@ class SAILAuth(object):
         # Pass the request to the next middleware
         return self.app(env, start_response)
 
+    def get_token(self, env):
+        """
+        Get the token from the request regardless if its a S3 requst or a plain
+        Swift request.
+
+        :param env: The request environment
+        :return: The token (JWT) as a string or None if no token was provided
+        """
+        # First see if its an S3 request
+        s3 = env.get('swift3.auth_details', None)
+        if s3 is not None:
+            return s3.get('access_key', None)
+
+        # Otherwise check for a normal Swift request
+        return env.get('HTTP_X_AUTH_TOKEN', None)
 
     def handle_auth(self, env, start_response):
         """
@@ -96,7 +113,7 @@ class SAILAuth(object):
         req = Request(env)
 
         # Grab the key from the request and make sure it exists
-        provided_key = req.headers.get('x-auth-key', None)
+        provided_key = env.get('HTTP_X_AUTH_KEY', None)
         if provided_key is None:
             self.logger.info('Failed to provide key')
             return HTTPUnauthorized(request=req, body='No key provided')(env, start_response)
@@ -119,6 +136,7 @@ class SAILAuth(object):
         req.response = response
         return req.response(env, start_response)
 
+
     def authenticate_jwt(self, token):
         """
         Check to see if the JWT is valid
@@ -133,7 +151,7 @@ class SAILAuth(object):
         Check to see if the user is authorized to access the given resource
         """
         # Get the token from the request
-        token = req.headers.get('x-auth-token', None)
+        token = self.get_token(req.environ)
         if token is None:
             return HTTPUnauthorized(request=req, body='No token provided')
         self.logger.info('Authorization token: {}'.format(token))
