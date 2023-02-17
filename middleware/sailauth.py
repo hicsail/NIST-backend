@@ -1,5 +1,5 @@
 from swift.common.swob import HTTPUnauthorized, Request, Response
-from swift.common.utils import register_swift_info
+from swift.common.utils import get_logger, register_swift_info
 
 
 class SAILAuth(object):
@@ -27,16 +27,17 @@ class SAILAuth(object):
     def __init__(self, app, conf):
         self.app = app
         self.conf = conf
+        self.logger = get_logger(conf, log_route='sailauth')
 
         # Grab the authentication URL which will be used to authenticate
         # user request
-        self.authentication_url = conf.get('authenticate_url', None)
+        self.authentication_url = conf.get('authentication_url', None)
         if self.authentication_url is None:
             raise Exception('No authentication URL provided')
 
         # Grab the authorization URL which will be use to check if the user
         # is authorized to perform the requested action
-        self.authorization_url = conf.get('authorize_url', None)
+        self.authorization_url = conf.get('authorization_url', None)
         if self.authorization_url is None:
             raise Exception('No authorization URL provided')
 
@@ -81,7 +82,7 @@ class SAILAuth(object):
         return self.app(env, start_response)
 
 
-    def handle_auth(self, env, start_reponse):
+    def handle_auth(self, env, start_response):
         """
         Handles authentication requests, will authenticate the key provided
         is a valid JWT against the SAIL auth system then will return that
@@ -93,11 +94,14 @@ class SAILAuth(object):
         # Grab the key from the request and make sure it exists
         provided_key = req.headers.get('x-auth-key', None)
         if provided_key is None:
-            return HTTPUnauthorized(request=req, body='No key provided')
+            self.logger.info('Failed to provide key')
+            return HTTPUnauthorized(request=req, body='No key provided')(env, start_response)
 
         # Make the request agains the SAIL authentication system
+        self.logger.info('Validating token: {}'.format(provided_key))
         if not self.authenticate_jwt(provided_key):
-            return HTTPUnauthorized(request=req, body='Invalid key')
+            self.logger.info('Provided invalid or expired key')
+            return HTTPUnauthorized(request=req, body='Invalid key')(env, start_response)
 
         # JWT was authenticated, now return the key as a token
         # TODO: Grab expiration time from JWT
@@ -106,7 +110,8 @@ class SAILAuth(object):
             'x-storage-token': provided_key,
             'x-auth-token-expires': '86400',
         })
-        return response(env, start_reponse)
+        req.response = response
+        return req.response(env, start_response)
 
     def authenticate_jwt(self, token):
         """
