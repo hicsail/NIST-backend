@@ -97,11 +97,21 @@ class SAILAuth(object):
         """
         # First see if its an S3 request
         s3 = env.get('swift3.auth_details', None)
-        if s3 is not None:
+        if s3:
             return s3.get('access_key', None)
 
         # Otherwise check for a normal Swift request
         return env.get('HTTP_X_AUTH_TOKEN', None)
+
+    def get_account(self, env):
+        """
+        Get the account regardless of the if its a S3 request or a plain
+        Sift request
+        """
+        s3 = env.get('swift3.auth_details', None)
+        if s3:
+            return s3.get('account', None)
+        return env.get('HTTP_X_AUTH_USER', None)
 
     def handle_auth(self, env, start_response):
         """
@@ -124,6 +134,12 @@ class SAILAuth(object):
             self.logger.info('Provided invalid or expired key')
             return HTTPUnauthorized(request=req, body='Invalid key')(env, start_response)
 
+        # Get the account
+        account = self.get_account(env)
+        if account is None:
+            self.logger.info('No account provided')
+            return HTTPUnauthorized(request=req, body='No account provided')(env, start_response)
+
         # JWT was authenticated, now return the key as a token
         # TODO: Grab expiration time from JWT
         # TODO: Get correct storage URL
@@ -131,7 +147,7 @@ class SAILAuth(object):
             'x-auth-token': provided_key,
             'x-storage-token': provided_key,
             'x-auth-token-expires': '86400',
-            'x-storage-url': 'http://127.0.0.1:12345/v1/AUTH_{}'.format(provided_key),
+            'x-storage-url': 'http://127.0.0.1:12345/v1/{}'.format(account),
         })
         req.response = response
         return req.response(env, start_response)
