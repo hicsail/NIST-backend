@@ -57,6 +57,10 @@ class SAILAuth(object):
         :param env: The request environment populated by prior middleware
         :param start_response: The begining reponse information
         """
+        # Check if the request even needs authentication
+        if env.get('swift.authorization_override', False) or env.get('swift_owner', False):
+            return self.app(env, start_response)
+
         # Handle a request against the auth prefix
         if env.get('PATH_INFO', '').startswith(self.auth_prefix):
             return self.handle_auth(env, start_response)
@@ -67,11 +71,11 @@ class SAILAuth(object):
         # Grab the token from the request and make sure it exists
         provided_token = req.headers.get('x-auth-token', None)
         if provided_token is None:
-            return HTTPUnauthorized(request=req, body='No token provided')
+            return HTTPUnauthorized(request=req, body='No token provided')(env, start_response)
 
         # Make the request agains the SAIL authentication system
         if not self.authenticate_jwt(provided_token):
-            return HTTPUnauthorized(request=req, body='Invalid token')
+            return HTTPUnauthorized(request=req, body='Invalid token')(env, start_response)
 
         # Otherwise set the REMOTE_USER to the token and add in the
         # authroization handler
@@ -105,10 +109,12 @@ class SAILAuth(object):
 
         # JWT was authenticated, now return the key as a token
         # TODO: Grab expiration time from JWT
+        # TODO: Get correct storage URL
         response = Response(request=req, headers={
             'x-auth-token': provided_key,
             'x-storage-token': provided_key,
             'x-auth-token-expires': '86400',
+            'x-storage-url': 'http://127.0.0.1:12345/v1/AUTH_{}'.format(provided_key),
         })
         req.response = response
         return req.response(env, start_response)
@@ -123,6 +129,14 @@ class SAILAuth(object):
         return True
 
     def authorize(self, req):
+        """
+        Check to see if the user is authorized to access the given resource
+        """
+        # Get the token from the request
+        token = req.headers.get('x-auth-token', None)
+        if token is None:
+            return HTTPUnauthorized(request=req, body='No token provided')
+        self.logger.info('Authorization token: {}'.format(token))
         return None
 
 
