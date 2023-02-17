@@ -51,7 +51,11 @@ Then add the filter config for the custom auth.
 ```
 [filter:sailauth]
 use = egg:sailauth#sailauth
+authentication_url=<authentication endpoint>
+authorization_url=<authorization endpoint>
 ```
+
+:warning: The `authentication_url` and `authorization_url` are not used yet
 
 5. Restart the proxy service
 
