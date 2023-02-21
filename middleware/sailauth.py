@@ -93,16 +93,10 @@ class SAILAuth(object):
         # First see if its an S3 request
         s3 = env.get('swift3.auth_details', None)
         if s3:
-            return s3.get('access_key', None)
+            return env.get('HTTP_SAIL_JWT', None)
 
         # Otherwise check for a normal Swift request
         return env.get('HTTP_X_AUTH_TOKEN', None)
-
-    def get_account(self, token):
-        """
-        Get the target account from the token
-        """
-        return 'test'
 
     def handle_auth(self, env, start_response):
         """
@@ -124,12 +118,6 @@ class SAILAuth(object):
         if not self.authenticate_jwt(provided_key):
             self.logger.info('Provided invalid or expired key')
             return HTTPUnauthorized(request=req, body='Invalid key')(env, start_response)
-
-        # Get the account
-        account = self.get_account(env)
-        if account is None:
-            self.logger.info('No account provided')
-            return HTTPUnauthorized(request=req, body='No account provided')(env, start_response)
 
         # JWT was authenticated, now return the key as a token
         # TODO: Grab expiration time from JWT
@@ -156,23 +144,15 @@ class SAILAuth(object):
             response = requests.post(self.auth_url, json={'query': query}, headers=headers).json()
 
             # Handle when the request went through and data was provided
-            if 'data' in response:
+            if response['data'] is not None:
                 # Make sure the payload matches what is expected
-                if 'authenticate' in response['data']:
+                if response['data']['authenticate']:
                     return True
                 else:
                     self.logger.error('Unexpected response data on authenticate: {}'.format(response['data']))
                     return False
             # Handle when an error message is present on the payload
-            if 'errors' in response and len(response['errors']) > 0:
-                status = response['errors'][0]['message']
-                # Handle when the token was rejected
-                if status == 'Unauthorized':
-                    return False
-                # Handle when the message was not the expected response
-                else:
-                    self.logger.error('Unexpected error message: {}'.format(response['errors']))
-                    return False
+            return False
 
         except Exception as e:
             self.logger.error('Failed authentication request with error: {}'.format(e))
@@ -192,12 +172,8 @@ class SAILAuth(object):
         token = self.get_token(req.environ)
         if token is None:
             return HTTPUnauthorized(request=req, body='No token provided')
-        account = self.get_account(req.environ)
 
-        # Update the request path to use the target account
-        req.environ['PATH_INFO'] = self.get_updated_path(req.environ['PATH_INFO'], account)
-
-        self.logger.info('Authorization account: {}, token: {}'.format(account, token))
+        self.logger.info('Authorization token: {}'.format(token))
         return None
 
 
