@@ -4,4 +4,5 @@
 
 type Query {
   authenticate: Boolean!
+  authorize(resource: String!): Boolean!
 }

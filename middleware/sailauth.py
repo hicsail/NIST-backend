@@ -1,5 +1,6 @@
 from swift.common.swob import HTTPUnauthorized, Request, Response
 from swift.common.utils import get_logger, register_swift_info
+import requests
 
 
 class SAILAuth(object):
@@ -31,15 +32,9 @@ class SAILAuth(object):
 
         # Grab the authentication URL which will be used to authenticate
         # user request
-        self.authentication_url = conf.get('authentication_url', None)
-        if self.authentication_url is None:
+        self.auth_url = conf.get('auth_url', None)
+        if self.auth_url is None:
             raise Exception('No authentication URL provided')
-
-        # Grab the authorization URL which will be use to check if the user
-        # is authorized to perform the requested action
-        self.authorization_url = conf.get('authorization_url', None)
-        if self.authorization_url is None:
-            raise Exception('No authorization URL provided')
 
         # Prefix to request path which is associated with authentication
         # via user and key. This middleware doesn't directly handle
@@ -148,7 +143,6 @@ class SAILAuth(object):
         req.response = response
         return req.response(env, start_response)
 
-
     def authenticate_jwt(self, token):
         """
         Check to see if the JWT is valid
@@ -156,7 +150,33 @@ class SAILAuth(object):
         :returns: True if the JWT is valid, false otherwise
         :rtype: boolean
         """
-        return True
+        query = 'query { authenticate }'
+        headers = { 'Authorization': 'Bearer {}'.format(token) }
+        try:
+            response = requests.post(self.auth_url, json={'query': query}, headers=headers).json()
+
+            # Handle when the request went through and data was provided
+            if 'data' in response:
+                # Make sure the payload matches what is expected
+                if 'authenticate' in response['data']:
+                    return True
+                else:
+                    self.logger.error('Unexpected response data on authenticate: {}'.format(response['data']))
+                    return False
+            # Handle when an error message is present on the payload
+            if 'errors' in response and len(response['errors']) > 0:
+                status = response['errors'][0]['message']
+                # Handle when the token was rejected
+                if status == 'Unauthorized':
+                    return False
+                # Handle when the message was not the expected response
+                else:
+                    self.logger.error('Unexpected error message: {}'.format(response['errors']))
+                    return False
+
+        except Exception as e:
+            self.logger.error('Failed authentication request with error: {}'.format(e))
+            return False
 
     def get_updated_path(self, path, account):
         parts = path.split('/')
