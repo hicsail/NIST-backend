@@ -1,10 +1,16 @@
-import { Resolver, Query, Args } from '@nestjs/graphql';
-import { Token } from './dto/token.dto';
+import { UseGuards } from '@nestjs/common';
+import { Resolver, Query } from '@nestjs/graphql';
+import { JwtAuthGuard } from './jwt.guard';
 
 @Resolver()
 export class AuthResolver {
+  constructor() {}
+
   @Query(() => Boolean)
-  async authenticate(@Args('token') args: Token): Promise<boolean> {
-    return args.token == 'key';
+  @UseGuards(JwtAuthGuard)
+  async authenticate(): Promise<boolean> {
+    // Will only get here if the JWT token in the header is valid, otherwise
+    // and UnauthorizedException will be thrown
+    return true;
   }
 }
