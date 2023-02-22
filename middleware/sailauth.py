@@ -1,5 +1,6 @@
 from swift.common.swob import HTTPUnauthorized, Request, Response
 from swift.common.utils import get_logger, register_swift_info
+import requests
 
 
 class SAILAuth(object):
@@ -31,15 +32,9 @@ class SAILAuth(object):
 
         # Grab the authentication URL which will be used to authenticate
         # user request
-        self.authentication_url = conf.get('authentication_url', None)
-        if self.authentication_url is None:
+        self.auth_url = conf.get('auth_url', None)
+        if self.auth_url is None:
             raise Exception('No authentication URL provided')
-
-        # Grab the authorization URL which will be use to check if the user
-        # is authorized to perform the requested action
-        self.authorization_url = conf.get('authorization_url', None)
-        if self.authorization_url is None:
-            raise Exception('No authorization URL provided')
 
         # Prefix to request path which is associated with authentication
         # via user and key. This middleware doesn't directly handle
@@ -97,11 +92,15 @@ class SAILAuth(object):
         """
         # First see if its an S3 request
         s3 = env.get('swift3.auth_details', None)
-        if s3 is not None:
-            return s3.get('access_key', None)
+        if s3:
+            return env.get('HTTP_SAIL_JWT', None)
 
         # Otherwise check for a normal Swift request
         return env.get('HTTP_X_AUTH_TOKEN', None)
+
+    def get_account(self, env):
+        """ In the future, this will be based on JWT """
+        return 'test'
 
     def handle_auth(self, env, start_response):
         """
@@ -124,6 +123,8 @@ class SAILAuth(object):
             self.logger.info('Provided invalid or expired key')
             return HTTPUnauthorized(request=req, body='Invalid key')(env, start_response)
 
+        account = self.get_account(env )
+
         # JWT was authenticated, now return the key as a token
         # TODO: Grab expiration time from JWT
         # TODO: Get correct storage URL
@@ -131,11 +132,10 @@ class SAILAuth(object):
             'x-auth-token': provided_key,
             'x-storage-token': provided_key,
             'x-auth-token-expires': '86400',
-            'x-storage-url': 'http://127.0.0.1:12345/v1/AUTH_{}'.format(provided_key),
+            'x-storage-url': 'http://127.0.0.1:12345/v1/{}'.format(account),
         })
         req.response = response
         return req.response(env, start_response)
-
 
     def authenticate_jwt(self, token):
         """
@@ -144,7 +144,31 @@ class SAILAuth(object):
         :returns: True if the JWT is valid, false otherwise
         :rtype: boolean
         """
-        return True
+        query = 'query { authenticate }'
+        headers = { 'Authorization': 'Bearer {}'.format(token) }
+        try:
+            response = requests.post(self.auth_url, json={'query': query}, headers=headers).json()
+
+            # Handle when the request went through and data was provided
+            if response['data'] is not None:
+                # Make sure the payload matches what is expected
+                if response['data']['authenticate']:
+                    return True
+                else:
+                    self.logger.error('Unexpected response data on authenticate: {}'.format(response['data']))
+                    return False
+            # Handle when an error message is present on the payload
+            return False
+
+        except Exception as e:
+            self.logger.error('Failed authentication request with error: {}'.format(e))
+            return False
+
+    def get_updated_path(self, path, account):
+        parts = path.split('/')
+        if len(parts) > 2:
+            parts[2] = account
+        return '/'.join(parts)
 
     def authorize(self, req):
         """
@@ -154,6 +178,9 @@ class SAILAuth(object):
         token = self.get_token(req.environ)
         if token is None:
             return HTTPUnauthorized(request=req, body='No token provided')
+
+        req.environ['PATH_INFO'] = self.get_updated_path(req.environ['PATH_INFO'], self.get_account(req.environ))
+
         self.logger.info('Authorization token: {}'.format(token))
         return None
 
