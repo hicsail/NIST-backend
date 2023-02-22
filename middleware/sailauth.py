@@ -98,6 +98,10 @@ class SAILAuth(object):
         # Otherwise check for a normal Swift request
         return env.get('HTTP_X_AUTH_TOKEN', None)
 
+    def get_account(self, env):
+        """ In the future, this will be based on JWT """
+        return 'test'
+
     def handle_auth(self, env, start_response):
         """
         Handles authentication requests, will authenticate the key provided
@@ -118,6 +122,8 @@ class SAILAuth(object):
         if not self.authenticate_jwt(provided_key):
             self.logger.info('Provided invalid or expired key')
             return HTTPUnauthorized(request=req, body='Invalid key')(env, start_response)
+
+        account = self.get_account(env )
 
         # JWT was authenticated, now return the key as a token
         # TODO: Grab expiration time from JWT
@@ -172,6 +178,8 @@ class SAILAuth(object):
         token = self.get_token(req.environ)
         if token is None:
             return HTTPUnauthorized(request=req, body='No token provided')
+
+        req.environ['PATH_INFO'] = self.get_updated_path(req.environ['PATH_INFO'], self.get_account(req.environ))
 
         self.logger.info('Authorization token: {}'.format(token))
         return None
