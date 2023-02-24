@@ -53,8 +53,6 @@ class SAILAuth(object):
         :param env: The request environment populated by prior middleware
         :param start_response: The begining reponse information
         """
-        print('AUTH CALL MADE')
-        print('ENV', env)
         # Check if the request even needs authentication
         if env.get('swift.authorization_override', False) or env.get('swift_owner', False):
             return self.app(env, start_response)
@@ -68,8 +66,6 @@ class SAILAuth(object):
 
         # Grab the token from the request and make sure it exists
         provided_token = self.get_token(env)
-        print('TOKEN', provided_token)
-        print('s3api.auth_details', env.get('s3api.auth_details'))
         if provided_token is None:
             return HTTPUnauthorized(request=req, body='No token provided')(env, start_response)
 
@@ -180,8 +176,6 @@ class SAILAuth(object):
         """
         Check to see if the user is authorized to access the given resource
         """
-        print('REQUEST ENVIRON', req.environ)
-
         # Get the token from the request
         token = self.get_token(req.environ)
         if token is None:
