@@ -1,5 +1,6 @@
 from swift.common.swob import HTTPUnauthorized, Request, Response
 from swift.common.utils import get_logger, register_swift_info
+from swift.common.middleware.acl import clean_acl
 import requests
 
 
@@ -78,6 +79,7 @@ class SAILAuth(object):
         # authroization handler
         env['REMOTE_USER'] = provided_token
         env['swift.authorize'] = self.authorize
+        env['swift.clean_acl'] = clean_acl
 
         # Pass the request to the next middleware
         return self.app(env, start_response)
@@ -132,7 +134,7 @@ class SAILAuth(object):
             'x-auth-token': provided_key,
             'x-storage-token': provided_key,
             'x-auth-token-expires': '86400',
-            'x-storage-url': 'http://127.0.0.1:12345/v1/{}'.format(account),
+            'x-storage-url': 'http://127.0.0.1:8080/v1/{}'.format(account),
         })
         req.response = response
         return req.response(env, start_response)
@@ -174,6 +176,8 @@ class SAILAuth(object):
         """
         Check to see if the user is authorized to access the given resource
         """
+        print('REQUEST ENVIRON', req.environ)
+
         # Get the token from the request
         token = self.get_token(req.environ)
         if token is None:
@@ -190,7 +194,7 @@ def filter_factory(global_conf, **local_conf):
     """ Factory for exposing the middleware """
     conf = global_conf.copy()
     conf.update(local_conf)
-    register_swift_info('nistauth', account_acls=True)
+    register_swift_info('nistauth', account_acls=False)
     def auth_filter(app):
         return SAILAuth(app, conf)
     return auth_filter
