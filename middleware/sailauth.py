@@ -224,6 +224,7 @@ class SAILAuth(object):
             return HTTPUnauthorized(request=req, body='No token provided')
 
         req.environ['PATH_INFO'] = self.get_updated_path(req.environ['PATH_INFO'], self.get_account(req.environ))
+        print('ENV', req.environ)
 
         if not self.make_authorize_request(req, token):
             return HTTPUnauthorized(request=req, body='Unauthorized')
