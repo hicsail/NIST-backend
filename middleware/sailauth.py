@@ -223,7 +223,8 @@ class SAILAuth(object):
         if token is None:
             return HTTPUnauthorized(request=req, body='No token provided')
 
-        req.environ['PATH_INFO'] = self.get_updated_path(req.environ['PATH_INFO'], self.get_account(req.environ))
+        # TODO: When evaulating how to handle accounts, update this
+        # req.environ['PATH_INFO'] = self.get_updated_path(req.environ['PATH_INFO'], self.get_account(req.environ))
         print('ENV', req.environ)
 
         if not self.make_authorize_request(req, token):

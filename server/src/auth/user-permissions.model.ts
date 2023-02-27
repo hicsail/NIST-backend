@@ -9,6 +9,15 @@ export class UserPermissions {
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Organization.name })
   org: mongoose.Types.ObjectId;
+
+  @Prop()
+  read: boolean;
+
+  @Prop()
+  write: boolean;
+
+  @Prop()
+  delete: boolean;
 }
 
 export type UserPermissionsDocument = UserPermissions & Document;
