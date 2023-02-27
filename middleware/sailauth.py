@@ -172,6 +172,48 @@ class SAILAuth(object):
             parts[2] = account
         return '/'.join(parts)
 
+    def get_resource_request(self, req):
+        """
+        Construct the resource request that is being made. This is in a format
+        that can be ingested by the authorization backend.
+        """
+        target_resource = req.swift_entity_path.split('/')
+        resource = {
+            'account': None,
+            'bucket': None,
+            'object': None,
+            'method': req.method
+        }
+
+        resource['account'] = target_resource[1]
+        if len(target_resource) > 2:
+            resource['bucket'] = target_resource[2]
+        if len(target_resource) > 3:
+            resource['object'] = '/'.join(target_resource[3:])
+        return resource
+
+    def make_authorize_request(self, req, token):
+        """
+        Make a request to the authorization backend to see if the request is
+        authorized.
+        """
+        resource_req = self.get_resource_request(req)
+
+        try:
+            query = 'query authorize($resource: ResourceRequest!) { authorize(resource: $resource) }'
+            variables = {
+                'resource': resource_req
+            }
+            headers = { 'Authorization': 'Bearer {}'.format(token) }
+
+            r = requests.post(self.auth_url, json={'query': query, 'variables': variables}, headers=headers)
+            return r.json()['data']['authorize']
+        except Exception as e:
+            self.logger.error('Failed to authorize against backend')
+            self.logger.error(e)
+        return False
+
+
     def authorize(self, req):
         """
         Check to see if the user is authorized to access the given resource
@@ -182,6 +224,9 @@ class SAILAuth(object):
             return HTTPUnauthorized(request=req, body='No token provided')
 
         req.environ['PATH_INFO'] = self.get_updated_path(req.environ['PATH_INFO'], self.get_account(req.environ))
+
+        if not self.make_authorize_request(req, token):
+            return HTTPUnauthorized(request=req, body='Unauthorized')
 
         self.logger.info('Authorization token: {}'.format(token))
         return None

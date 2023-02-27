@@ -4,5 +4,24 @@
 
 type Query {
   authenticate: Boolean!
-  authorize(resource: String!): Boolean!
+  authorize(resource: ResourceRequest!): Boolean!
+}
+
+"""Bucket resource a user is attempting to access"""
+input ResourceRequest {
+  account: String!
+  bucket: String
+  object: String
+  method: RequestMethod!
+}
+
+enum RequestMethod {
+  GET
+  POST
+  PUT
+  DELETE
+  PATCH
+  ALL
+  OPTIONS
+  HEAD
 }
