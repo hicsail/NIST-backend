@@ -3,7 +3,7 @@ import { AuthModule } from './auth/auth.module';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver } from '@nestjs/apollo';
 import { OrganizationModule } from './organization/organization.module';
-import {MongooseModule} from '@nestjs/mongoose';
+import { MongooseModule } from '@nestjs/mongoose';
 
 
 @Module({

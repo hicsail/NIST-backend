@@ -63,7 +63,7 @@ export class UserPermissionsService {
     // Cannot create a bucket
     // TODO: Limit this to the root level account
     if (request.method == RequestMethod.PUT) {
-      return true;
+      return false;
     }
 
     // Cannot modify bucket metadata

@@ -3,7 +3,7 @@ import { Resolver, Query, Args } from '@nestjs/graphql';
 import { JwtAuthGuard } from './jwt.guard';
 import { ResourceRequest } from './dtos/resource.dto';
 import { UserPermissionsService } from './user-permissions.service';
-import {UserContext} from './user.decorator';
+import { UserContext } from './user.decorator';
 
 @Resolver()
 export class AuthResolver {
