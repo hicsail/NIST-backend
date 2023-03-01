@@ -1,5 +1,6 @@
 from swift.common.swob import HTTPUnauthorized, Request, Response
 from swift.common.utils import get_logger, register_swift_info
+from swift.common.middleware.acl import clean_acl
 import requests
 
 
@@ -78,6 +79,7 @@ class SAILAuth(object):
         # authroization handler
         env['REMOTE_USER'] = provided_token
         env['swift.authorize'] = self.authorize
+        env['swift.clean_acl'] = clean_acl
 
         # Pass the request to the next middleware
         return self.app(env, start_response)
@@ -91,7 +93,7 @@ class SAILAuth(object):
         :return: The token (JWT) as a string or None if no token was provided
         """
         # First see if its an S3 request
-        s3 = env.get('swift3.auth_details', None)
+        s3 = env.get('s3api.auth_details', None)
         if s3:
             return env.get('HTTP_SAIL_JWT', None)
 
@@ -132,7 +134,7 @@ class SAILAuth(object):
             'x-auth-token': provided_key,
             'x-storage-token': provided_key,
             'x-auth-token-expires': '86400',
-            'x-storage-url': 'http://127.0.0.1:12345/v1/{}'.format(account),
+            'x-storage-url': 'http://127.0.0.1:8080/v1/{}'.format(account),
         })
         req.response = response
         return req.response(env, start_response)
@@ -170,6 +172,48 @@ class SAILAuth(object):
             parts[2] = account
         return '/'.join(parts)
 
+    def get_resource_request(self, req):
+        """
+        Construct the resource request that is being made. This is in a format
+        that can be ingested by the authorization backend.
+        """
+        target_resource = req.swift_entity_path.split('/')
+        resource = {
+            'account': None,
+            'bucket': None,
+            'object': None,
+            'method': req.method
+        }
+
+        resource['account'] = target_resource[1]
+        if len(target_resource) > 2:
+            resource['bucket'] = target_resource[2]
+        if len(target_resource) > 3:
+            resource['object'] = '/'.join(target_resource[3:])
+        return resource
+
+    def make_authorize_request(self, req, token):
+        """
+        Make a request to the authorization backend to see if the request is
+        authorized.
+        """
+        resource_req = self.get_resource_request(req)
+
+        try:
+            query = 'query authorize($resource: ResourceRequest!) { authorize(resource: $resource) }'
+            variables = {
+                'resource': resource_req
+            }
+            headers = { 'Authorization': 'Bearer {}'.format(token) }
+
+            r = requests.post(self.auth_url, json={'query': query, 'variables': variables}, headers=headers)
+            return r.json()['data']['authorize']
+        except Exception as e:
+            self.logger.error('Failed to authorize against backend')
+            self.logger.error(e)
+        return False
+
+
     def authorize(self, req):
         """
         Check to see if the user is authorized to access the given resource
@@ -179,7 +223,11 @@ class SAILAuth(object):
         if token is None:
             return HTTPUnauthorized(request=req, body='No token provided')
 
-        req.environ['PATH_INFO'] = self.get_updated_path(req.environ['PATH_INFO'], self.get_account(req.environ))
+        # TODO: When evaulating how to handle accounts, update this
+        # req.environ['PATH_INFO'] = self.get_updated_path(req.environ['PATH_INFO'], self.get_account(req.environ))
+
+        if not self.make_authorize_request(req, token):
+            return HTTPUnauthorized(request=req, body='Unauthorized')
 
         self.logger.info('Authorization token: {}'.format(token))
         return None
@@ -190,7 +238,7 @@ def filter_factory(global_conf, **local_conf):
     """ Factory for exposing the middleware """
     conf = global_conf.copy()
     conf.update(local_conf)
-    register_swift_info('nistauth', account_acls=True)
+    register_swift_info('nistauth', account_acls=False)
     def auth_filter(app):
         return SAILAuth(app, conf)
     return auth_filter
