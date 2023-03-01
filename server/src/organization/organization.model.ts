@@ -15,6 +15,10 @@ export class Organization {
   @Prop()
   @Field()
   owner: string | null;
+
+  @Prop()
+  @Field()
+  bucket: string;
 }
 
 export type OrganizationDocument = Organization & Document;

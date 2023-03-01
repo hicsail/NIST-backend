@@ -1,6 +1,7 @@
 import { Injectable, RequestMethod } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
+import { OrganizationService } from '../organization/organization.service';
 import { Organization } from '../organization/organization.model';
 import { PermissionChange } from './dtos/permission-change.dto';
 import { ResourceRequest, } from './dtos/resource.dto';
@@ -8,7 +9,8 @@ import { UserPermissions, UserPermissionsDocument } from './user-permissions.mod
 
 @Injectable()
 export class UserPermissionsService {
-  constructor(@InjectModel(UserPermissions.name) private permsModel: Model<UserPermissionsDocument>) {}
+  constructor(@InjectModel(UserPermissions.name) private permsModel: Model<UserPermissionsDocument>,
+              private readonly orgService: OrganizationService) {}
 
   /** Get all user permissions for the given user */
   async getUserPermissions(user: string): Promise<UserPermissions[]> {
@@ -131,11 +133,15 @@ export class UserPermissionsService {
     return false;
   }
 
-  private async objectLevelPermissions(_user: string, request: ResourceRequest): Promise<boolean> {
+  private async objectLevelPermissions(user: string, request: ResourceRequest): Promise<boolean> {
     const bucket = request.bucket;
 
     // Get the user permissions for this bucket
-    const userPermissions = await this.permsModel.findOne({ user: _user, bucket: bucket });
+    const org = await this.orgService.findByBucket(bucket);
+    if (!org) {
+      throw new Error(`Could not find organization for bucket: ${bucket}`);
+    }
+    const userPermissions = await this.permsModel.findOne({ user: user, org: org._id });
     if (!userPermissions) {
       return false;
     }
