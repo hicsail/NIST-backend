@@ -21,7 +21,7 @@ type Query {
   authenticate: Boolean!
   authorize(resource: ResourceRequest!): Boolean!
   getUserPermissions: [UserPermissions!]!
-  getUserPermissionsPerProject: [UserPermissions!]!
+  getUserPermissionsPerOrganization(organization: ID!): [UserPermissions!]!
 }
 
 """Bucket resource a user is attempting to access"""

@@ -1,5 +1,5 @@
 import { BadRequestException, UseGuards } from '@nestjs/common';
-import { Resolver, Query, Args, ResolveField, Parent } from '@nestjs/graphql';
+import { Resolver, Query, Args, ResolveField, Parent, ID } from '@nestjs/graphql';
 import { JwtAuthGuard } from './jwt.guard';
 import { ResourceRequest } from './dtos/resource.dto';
 import { UserPermissionsService } from './user-permissions.service';
@@ -7,6 +7,7 @@ import { UserContext } from './user.decorator';
 import { UserPermissions } from './user-permissions.model';
 import { Organization } from '../organization/organization.model';
 import { OrganizationService } from '../organization/organization.service';
+import { OrganizationPipe } from '../organization/organization.pipe';
 
 @Resolver(() => UserPermissions)
 export class AuthResolver {
@@ -36,8 +37,8 @@ export class AuthResolver {
   // TODO: Add guard to make sure the user is an admin for the given organization
   @Query(() => [UserPermissions])
   @UseGuards(JwtAuthGuard)
-  async getUserPermissionsPerProject(): Promise<UserPermissions[]> {
-    return this.userPermissions.getUserPermissionsForOrganization(({} as any) as Organization);
+  async getUserPermissionsPerOrganization(@Args('organization', { type: () => ID }, OrganizationPipe) org: Organization): Promise<UserPermissions[]> {
+    return this.userPermissions.getUserPermissionsForOrganization(org);
   }
 
   @ResolveField(() => Organization)
