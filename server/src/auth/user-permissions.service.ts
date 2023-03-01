@@ -1,12 +1,59 @@
 import { Injectable, RequestMethod } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
+import { Organization } from '../organization/organization.model';
+import { PermissionChange } from './dtos/permission-change.dto';
 import { ResourceRequest, } from './dtos/resource.dto';
 import { UserPermissions, UserPermissionsDocument } from './user-permissions.model';
 
 @Injectable()
 export class UserPermissionsService {
   constructor(@InjectModel(UserPermissions.name) private permsModel: Model<UserPermissionsDocument>) {}
+
+  /** Get all user permissions for the given user */
+  async getUserPermissions(user: string): Promise<UserPermissions[]> {
+    return this.permsModel.find({ user: user });
+  }
+
+  /** Get all user permissions for the given organization */
+  async getUserPermissionsForOrganization(organization: Organization): Promise<UserPermissions[]> {
+    return this.permsModel.find({ org: organization._id });
+  }
+
+  async find(id: mongoose.Types.ObjectId): Promise<UserPermissions | null> {
+    return this.permsModel.findById(id).exec();
+  }
+
+  async updatePermissions(perms: UserPermissions, change: PermissionChange): Promise<UserPermissions> {
+    const newPermissions = {
+      _id: perms._id,
+      user: perms.user,
+      org: perms.org,
+      read: change.read != null ? change.read : perms.read,
+      write: change.write != null ? change.write : perms.write,
+      delete: change.delete != null ? change.delete : perms.delete,
+      admin: change.admin != null ? change.admin : perms.admin
+    };
+
+    return this.permsModel.findByIdAndUpdate(perms._id, newPermissions, { new: true }).exec();
+  }
+
+  /** Check to see if a user can change permissions for a given organization */
+  async canChangePermissions(user: string, org: Organization | mongoose.Types.ObjectId) {
+    let id: string = '';
+    if (org instanceof mongoose.Types.ObjectId) {
+      id = org.toString();
+    } else {
+      id = org._id.toString();
+    }
+
+    const userPermissions = await this.permsModel.findOne({ user: user, org: id });
+    if (!userPermissions) {
+      return false;
+    }
+
+    return userPermissions.admin;
+  }
 
   /**
    * Checks to see if the user has access to the given resource based on
