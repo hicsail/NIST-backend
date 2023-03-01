@@ -39,7 +39,7 @@ export class AuthResolver {
   @Mutation(() => UserPermissions)
   @UseGuards(JwtAuthGuard)
   async updatePermissions(@UserContext() user: any,
-                          @Args('permission', { type: () => ID }, UserPermissionsPipe) perms: UserPermissions,
+                          @Args('permission', { type: () => ID, description: 'ID of the UserPermission to be changed' }, UserPermissionsPipe) perms: UserPermissions,
                           @Args('change') change: PermissionChange): Promise<UserPermissions> {
     const requestIsAdmin = await this.userPermissions.canChangePermissions(user.sub, perms.org);
     if (!requestIsAdmin) {

@@ -45,7 +45,11 @@ enum RequestMethod {
 }
 
 type Mutation {
-  updatePermissions(permission: ID!, change: PermissionChange!): UserPermissions!
+  updatePermissions(
+    """ID of the UserPermission to be changed"""
+    permission: ID!
+    change: PermissionChange!
+  ): UserPermissions!
 }
 
 input PermissionChange {
