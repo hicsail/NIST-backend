@@ -2,9 +2,27 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type Organization {
+  _id: ID!
+  name: String!
+  owner: String!
+}
+
+type UserPermissions {
+  user: String!
+  org: Organization!
+  read: Boolean!
+  write: Boolean!
+  delete: Boolean!
+  admin: Boolean!
+  organization: Organization!
+}
+
 type Query {
   authenticate: Boolean!
   authorize(resource: ResourceRequest!): Boolean!
+  getUserPermissions: [UserPermissions!]!
+  getUserPermissionsPerProject: [UserPermissions!]!
 }
 
 """Bucket resource a user is attempting to access"""

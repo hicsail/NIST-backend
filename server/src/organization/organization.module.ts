@@ -8,5 +8,6 @@ import { OrganizationService } from './organization.service';
     MongooseModule.forFeature([{ name: Organization.name, schema: OrganizationSchema }]),
   ],
   providers: [OrganizationService],
+  exports: [OrganizationService]
 })
 export class OrganizationModule {}

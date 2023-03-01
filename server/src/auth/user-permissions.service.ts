@@ -1,12 +1,23 @@
 import { Injectable, RequestMethod } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import {Organization} from 'src/organization/organization.model';
 import { ResourceRequest, } from './dtos/resource.dto';
 import { UserPermissions, UserPermissionsDocument } from './user-permissions.model';
 
 @Injectable()
 export class UserPermissionsService {
   constructor(@InjectModel(UserPermissions.name) private permsModel: Model<UserPermissionsDocument>) {}
+
+  /** Get all user permissions for the given user */
+  async getUserPermissions(user: string): Promise<UserPermissions[]> {
+    return this.permsModel.find({ user: user });
+  }
+
+  /** Get all user permissions for the given organization */
+  async getUserPermissionsForOrganization(organization: Organization): Promise<UserPermissions[]> {
+    return this.permsModel.find({ org: organization._id });
+  }
 
   /**
    * Checks to see if the user has access to the given resource based on
