@@ -6,6 +6,7 @@ type Organization {
   _id: ID!
   name: String!
   owner: String!
+  bucket: String!
 }
 
 type UserPermissions {

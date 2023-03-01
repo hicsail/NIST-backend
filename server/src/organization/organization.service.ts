@@ -10,4 +10,8 @@ export class OrganizationService {
   find(id: mongoose.Types.ObjectId): Promise<Organization | null> {
     return this.orgModel.findById(id).exec();
   }
+
+  findByBucket(bucket: string): Promise<Organization | null> {
+    return this.orgModel.findOne({ bucket }).exec();
+  }
 }
