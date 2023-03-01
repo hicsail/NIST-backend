@@ -52,6 +52,9 @@ export class UserPermissionsService {
     if (request.method == RequestMethod.DELETE) {
       return false;
     }
+
+    // Unknown account request, block access
+    return false;
   }
 
   private async bucketLevelPermissions(_user: string, request: ResourceRequest): Promise<boolean> {
@@ -77,7 +80,8 @@ export class UserPermissionsService {
       return false;
     }
 
-    return true;
+    // Unknown bucket request, block access
+    return false;
   }
 
   private async objectLevelPermissions(_user: string, request: ResourceRequest): Promise<boolean> {
@@ -101,6 +105,7 @@ export class UserPermissionsService {
       return userPermissions.delete;
     }
 
-    return true;
+    // Unknown object request, block access
+    return false;
   }
 }
