@@ -1,4 +1,4 @@
-import { BadRequestException, UseGuards } from '@nestjs/common';
+import { BadRequestException, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { Mutation, Resolver, Query, Args, ResolveField, Parent, ID } from '@nestjs/graphql';
 import { JwtAuthGuard } from './jwt.guard';
 import { ResourceRequest } from './dtos/resource.dto';
@@ -38,8 +38,13 @@ export class AuthResolver {
 
   @Mutation(() => UserPermissions)
   @UseGuards(JwtAuthGuard)
-  async updatePermissions(@Args('permission', { type: () => ID }, UserPermissionsPipe) perms: UserPermissions,
+  async updatePermissions(@UserContext() user: any,
+                          @Args('permission', { type: () => ID }, UserPermissionsPipe) perms: UserPermissions,
                           @Args('change') change: PermissionChange): Promise<UserPermissions> {
+    const requestIsAdmin = await this.userPermissions.canChangePermissions(user.sub, perms.org);
+    if (!requestIsAdmin) {
+      throw new UnauthorizedException('User not authorized to access organization permissions');
+    }
     return this.userPermissions.updatePermissions(perms, change);
   }
 
@@ -47,7 +52,11 @@ export class AuthResolver {
   // TODO: Add guard to make sure the user is an admin for the given organization
   @Query(() => [UserPermissions])
   @UseGuards(JwtAuthGuard)
-  async getUserPermissionsPerOrganization(@Args('organization', { type: () => ID }, OrganizationPipe) org: Organization): Promise<UserPermissions[]> {
+  async getUserPermissionsPerOrganization(@UserContext() user: any, @Args('organization', { type: () => ID }, OrganizationPipe) org: Organization): Promise<UserPermissions[]> {
+    const requestIsAdmin = await this.userPermissions.canChangePermissions(user.sub, org);
+    if (!requestIsAdmin) {
+      throw new UnauthorizedException('User not authorized to access organization permissions');
+    }
     return this.userPermissions.getUserPermissionsForOrganization(org);
   }
 

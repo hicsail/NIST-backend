@@ -38,6 +38,23 @@ export class UserPermissionsService {
     return this.permsModel.findByIdAndUpdate(perms._id, newPermissions, { new: true }).exec();
   }
 
+  /** Check to see if a user can change permissions for a given organization */
+  async canChangePermissions(user: string, org: Organization | mongoose.Types.ObjectId) {
+    let id: string = '';
+    if (org instanceof mongoose.Types.ObjectId) {
+      id = org.toString();
+    } else {
+      id = org._id.toString();
+    }
+
+    const userPermissions = await this.permsModel.findOne({ user: user, org: id });
+    if (!userPermissions) {
+      return false;
+    }
+
+    return userPermissions.admin;
+  }
+
   /**
    * Checks to see if the user has access to the given resource based on
    * the request method.
