@@ -41,7 +41,7 @@ export class AuthResolver {
   }
 
   @ResolveField(() => Organization)
-  async organization(@Parent() perms: UserPermissions): Promise<Organization> {
+  async org(@Parent() perms: UserPermissions): Promise<Organization> {
     const org = await this.orgService.find(perms.org);
     if (!org) {
       throw new BadRequestException(`Organization ${perms.org} does not exist`);

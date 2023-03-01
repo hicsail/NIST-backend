@@ -15,7 +15,6 @@ type UserPermissions {
   write: Boolean!
   delete: Boolean!
   admin: Boolean!
-  organization: Organization!
 }
 
 type Query {
