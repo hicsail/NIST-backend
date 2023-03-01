@@ -1,7 +1,8 @@
 import { Injectable, RequestMethod } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import {Organization} from 'src/organization/organization.model';
+import mongoose, { Model } from 'mongoose';
+import { Organization } from '../organization/organization.model';
+import { PermissionChange } from './dtos/permission-change.dto';
 import { ResourceRequest, } from './dtos/resource.dto';
 import { UserPermissions, UserPermissionsDocument } from './user-permissions.model';
 
@@ -17,6 +18,24 @@ export class UserPermissionsService {
   /** Get all user permissions for the given organization */
   async getUserPermissionsForOrganization(organization: Organization): Promise<UserPermissions[]> {
     return this.permsModel.find({ org: organization._id });
+  }
+
+  async find(id: mongoose.Types.ObjectId): Promise<UserPermissions | null> {
+    return this.permsModel.findById(id).exec();
+  }
+
+  async updatePermissions(perms: UserPermissions, change: PermissionChange): Promise<UserPermissions> {
+    const newPermissions = {
+      _id: perms._id,
+      user: perms.user,
+      org: perms.org,
+      read: change.read != null ? change.read : perms.read,
+      write: change.write != null ? change.write : perms.write,
+      delete: change.delete != null ? change.delete : perms.delete,
+      admin: change.admin != null ? change.admin : perms.admin
+    };
+
+    return this.permsModel.findByIdAndUpdate(perms._id, newPermissions, { new: true }).exec();
   }
 
   /**

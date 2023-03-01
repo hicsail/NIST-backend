@@ -1,4 +1,4 @@
-import { ObjectType, Field } from '@nestjs/graphql';
+import { ObjectType, Field, ID } from '@nestjs/graphql';
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
 import { Organization } from '../organization/organization.model';
@@ -6,6 +6,9 @@ import { Organization } from '../organization/organization.model';
 @Schema()
 @ObjectType()
 export class UserPermissions {
+  @Field(() => ID)
+  _id: mongoose.Types.ObjectId;
+
   @Prop({ description: 'ID of the user' })
   @Field()
   user: string;

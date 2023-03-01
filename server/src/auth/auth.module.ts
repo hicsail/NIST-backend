@@ -9,6 +9,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { UserPermissions, UserPermissionsSchema } from './user-permissions.model';
 import { UserPermissionsService } from './user-permissions.service';
 import { OrganizationModule } from '../organization/organization.module';
+import { UserPermissionsPipe } from './user-permissions.pipe';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { OrganizationModule } from '../organization/organization.module';
     AuthService,
     JwtAuthGuard,
     UserPermissionsService,
+    UserPermissionsPipe,
     {
       provide: JwtStrategy,
       inject: [AuthService],

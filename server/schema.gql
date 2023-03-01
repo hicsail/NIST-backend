@@ -9,6 +9,7 @@ type Organization {
 }
 
 type UserPermissions {
+  _id: ID!
   user: String!
   org: Organization!
   read: Boolean!
@@ -41,4 +42,15 @@ enum RequestMethod {
   ALL
   OPTIONS
   HEAD
+}
+
+type Mutation {
+  updatePermissions(permission: ID!, change: PermissionChange!): UserPermissions!
+}
+
+input PermissionChange {
+  read: Boolean
+  write: Boolean
+  delete: Boolean
+  admin: Boolean
 }
