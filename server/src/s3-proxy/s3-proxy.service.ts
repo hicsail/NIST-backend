@@ -32,7 +32,9 @@ export class S3ProxyService {
   }
 
   async makeAWSRequest(req: Request): Promise<AxiosResponse> {
-    const path = req.url.replace(this.PATH_PREFIX, '');
+    // const path = req.url.replace(this.PATH_PREFIX, '/');
+    const path = '/nist-dev/test.txt';
+    console.log(path);
 
 
     // Convert headers to the format that the AWS SDK expects
@@ -45,6 +47,7 @@ export class S3ProxyService {
       method: req.method,
       protocol: 'https',
       hostname: `s3.${this.region}.amazonaws.com`,
+      body: req.body,
       headers: {
         ...headers,
         host: `s3.${this.region}.amazonaws.com`,
@@ -53,13 +56,32 @@ export class S3ProxyService {
     });
 
     const signedRequest = await this.signer.sign(httpRequest);
+    console.log('here');
     const axiosHeaders = new AxiosHeaders(signedRequest.headers);
-
-    console.log(headers);
+    console.log('there');
+    console.log(path);
     try {
-      const result = await firstValueFrom(this.http.get(`https://s3.${this.region}.amazonaws.com${path}`, { headers: axiosHeaders }));
-      // console.log(result);
-      return result;
+      /*
+      const result = await firstValueFrom(this.http.request({
+        method: req.method,
+        url: `https://s3.${this.region}.amazonaws.com${path}`,
+        data: req.body,
+        headers: axiosHeaders,
+      }));
+      */
+
+      switch(req.method) {
+        case('GET'):
+          return firstValueFrom(this.http.get(`https://s3.${this.region}.amazonaws.com${path}`, { headers: axiosHeaders }));
+        case('PUT'):
+          return firstValueFrom(this.http.put(`https://s3.${this.region}.amazonaws.com${path}`, req.body, { headers: axiosHeaders }));
+        case('POST'):
+          return firstValueFrom(this.http.post(`https://s3.${this.region}.amazonaws.com${path}`, req.body, { headers: axiosHeaders }));
+        case('DELETE'):
+          return firstValueFrom(this.http.delete(`https://s3.${this.region}.amazonaws.com${path}`, { headers: axiosHeaders }));
+        default:
+          throw new Error(`Unsupported method: ${req.method}`);
+      }
     } catch (e) {
       // console.error(e);
     }
