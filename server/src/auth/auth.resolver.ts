@@ -13,7 +13,10 @@ import { PermissionChange } from './dtos/permission-change.dto';
 
 @Resolver(() => UserPermissions)
 export class AuthResolver {
-  constructor(private readonly userPermissions: UserPermissionsService, private readonly orgService: OrganizationService) {}
+  constructor(
+    private readonly userPermissions: UserPermissionsService,
+    private readonly orgService: OrganizationService
+  ) {}
 
   @Query(() => Boolean)
   @UseGuards(JwtAuthGuard)
@@ -38,9 +41,12 @@ export class AuthResolver {
 
   @Mutation(() => UserPermissions)
   @UseGuards(JwtAuthGuard)
-  async updatePermissions(@UserContext() user: any,
-                          @Args('permission', { type: () => ID, description: 'ID of the UserPermission to be changed' }, UserPermissionsPipe) perms: UserPermissions,
-                          @Args('change') change: PermissionChange): Promise<UserPermissions> {
+  async updatePermissions(
+    @UserContext() user: any,
+    @Args('permission', { type: () => ID, description: 'ID of the UserPermission to be changed' }, UserPermissionsPipe)
+    perms: UserPermissions,
+    @Args('change') change: PermissionChange
+  ): Promise<UserPermissions> {
     const requestIsAdmin = await this.userPermissions.canChangePermissions(user.sub, perms.org);
     if (!requestIsAdmin) {
       throw new UnauthorizedException('User not authorized to access organization permissions');
@@ -48,11 +54,13 @@ export class AuthResolver {
     return this.userPermissions.updatePermissions(perms, change);
   }
 
-
   // TODO: Add guard to make sure the user is an admin for the given organization
   @Query(() => [UserPermissions])
   @UseGuards(JwtAuthGuard)
-  async getUserPermissionsPerOrganization(@UserContext() user: any, @Args('organization', { type: () => ID }, OrganizationPipe) org: Organization): Promise<UserPermissions[]> {
+  async getUserPermissionsPerOrganization(
+    @UserContext() user: any,
+    @Args('organization', { type: () => ID }, OrganizationPipe) org: Organization
+  ): Promise<UserPermissions[]> {
     const requestIsAdmin = await this.userPermissions.canChangePermissions(user.sub, org);
     if (!requestIsAdmin) {
       throw new UnauthorizedException('User not authorized to access organization permissions');
@@ -69,4 +77,3 @@ export class AuthResolver {
     return org;
   }
 }
-
