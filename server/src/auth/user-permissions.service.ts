@@ -44,7 +44,7 @@ export class UserPermissionsService {
 
   /** Check to see if a user can change permissions for a given organization */
   async canChangePermissions(user: string, org: Organization | mongoose.Types.ObjectId) {
-    let id: string = '';
+    let id = '';
     if (org instanceof mongoose.Types.ObjectId) {
       id = org.toString();
     } else {
