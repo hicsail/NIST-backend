@@ -4,13 +4,15 @@ import mongoose, { Model } from 'mongoose';
 import { OrganizationService } from '../organization/organization.service';
 import { Organization } from '../organization/organization.model';
 import { PermissionChange } from './dtos/permission-change.dto';
-import { ResourceRequest, } from './dtos/resource.dto';
+import { ResourceRequest } from './dtos/resource.dto';
 import { UserPermissions, UserPermissionsDocument } from './user-permissions.model';
 
 @Injectable()
 export class UserPermissionsService {
-  constructor(@InjectModel(UserPermissions.name) private permsModel: Model<UserPermissionsDocument>,
-              private readonly orgService: OrganizationService) {}
+  constructor(
+    @InjectModel(UserPermissions.name) private permsModel: Model<UserPermissionsDocument>,
+    private readonly orgService: OrganizationService
+  ) {}
 
   /** Get all user permissions for the given user */
   async getUserPermissions(user: string): Promise<UserPermissions[]> {
@@ -42,7 +44,7 @@ export class UserPermissionsService {
 
   /** Check to see if a user can change permissions for a given organization */
   async canChangePermissions(user: string, org: Organization | mongoose.Types.ObjectId) {
-    let id: string = '';
+    let id = '';
     if (org instanceof mongoose.Types.ObjectId) {
       id = org.toString();
     } else {
@@ -68,12 +70,12 @@ export class UserPermissionsService {
   async isAllowed(_user: string, request: ResourceRequest): Promise<boolean> {
     // Account level access requests
     if (request.bucket == null) {
-      return this.accountLevelPermissions(_user, request)
+      return this.accountLevelPermissions(_user, request);
     }
 
     // Bucket level access requests
     if (request.object == null) {
-      return this.bucketLevelPermissions(_user, request)
+      return this.bucketLevelPermissions(_user, request);
     }
 
     // Object level access requests

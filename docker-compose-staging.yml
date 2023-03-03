@@ -1,0 +1,19 @@
+version: '2'
+services:
+  mongo:
+    image: mongo
+    ports: ["27023:27017"]
+    restart: "always"
+    volumes:
+      - nist-staging:/data/db
+  nist:
+    image: hicsail/nist-backend:unstable
+    restart: always
+    depends_on:
+      - mongo
+    ports: ["3005:3000"]
+    env_file:
+      - stack.env
+volumes:
+  nist-staging:
+    external: true

@@ -13,7 +13,7 @@ export class UserPermissionsPipe implements PipeTransform<string, Promise<UserPe
       if (perms) {
         return perms;
       }
-    } catch(_e) {}
+    } catch (_e) {}
 
     throw new BadRequestException(`UserPermissions ${value} does not exist`);
   }

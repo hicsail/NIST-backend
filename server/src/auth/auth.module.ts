@@ -23,7 +23,7 @@ import { UserPermissionsPipe } from './user-permissions.pipe';
         const options: JwtModuleOptions = {
           publicKey: await authService.getPublicKey(),
           signOptions: {
-            algorithm: 'RS256',
+            algorithm: 'RS256'
           }
         };
         return options;
