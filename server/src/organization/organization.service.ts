@@ -7,6 +7,10 @@ import { Organization, OrganizationDocument } from './organization.model';
 export class OrganizationService {
   constructor(@InjectModel(Organization.name) private orgModel: Model<OrganizationDocument>) {}
 
+  findAll(): Promise<Organization[]> {
+    return this.orgModel.find().exec();
+  }
+
   find(id: mongoose.Types.ObjectId): Promise<Organization | null> {
     return this.orgModel.findById(id).exec();
   }
