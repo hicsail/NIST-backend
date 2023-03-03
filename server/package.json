@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.282.0",
+    "@aws-sdk/signature-v4": "^3.282.0",
     "@nestjs/apollo": "^10.2.0",
     "@nestjs/axios": "^2.0.0",
     "@nestjs/common": "^9.0.0",

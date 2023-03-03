@@ -25,9 +25,11 @@ export class S3ProxyController {
   // Handle all requests to /s3/*
   @Get()
   async get(@Req() req: Request) {
+    // console.log(req);
+
     const result = await this.s3Proxy.makeAWSRequest(req);
-    console.log(result.data);
-    return result;
+    // console.log(result.data);
+    return result.data;
 
     // Make the
     // const result = await this.client.send(new ListBucketsCommand({}));

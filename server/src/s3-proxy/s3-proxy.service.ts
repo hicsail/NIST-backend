@@ -1,8 +1,10 @@
-import {HttpService} from '@nestjs/axios';
+import { HttpService } from '@nestjs/axios';
 import { Injectable, Request } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import {AxiosHeaders, AxiosResponse} from 'axios';
-const crypto = require('crypto');
+import { AxiosHeaders, AxiosResponse } from 'axios';
+import { SignatureV4 } from '@aws-sdk/signature-v4';
+import { Sha256 } from '@aws-crypto/sha256-js';
+import { HttpRequest } from '@aws-sdk/protocol-http';
 import { firstValueFrom } from 'rxjs';
 
 @Injectable()
@@ -11,83 +13,56 @@ export class S3ProxyService {
   private accessKey: string;
   private accessKeySecret: string;
   private region: string;
+  private signer: SignatureV4;
 
   constructor(configService: ConfigService, private readonly http: HttpService) {
     this.accessKey = configService.getOrThrow('s3.access_key_id');
     this.accessKeySecret = configService.getOrThrow('s3.access_key_secret');
     this.region = configService.getOrThrow('s3.region');
+
+    this.signer = new SignatureV4({
+      credentials: {
+        accessKeyId: this.accessKey,
+        secretAccessKey: this.accessKeySecret,
+      },
+      region: this.region,
+      service: 's3',
+      sha256: Sha256
+    });
   }
 
   async makeAWSRequest(req: Request): Promise<AxiosResponse> {
-    const authHeader = this.getAuthenticationHeader(req);
+    const path = req.url.replace(this.PATH_PREFIX, '');
 
-    const resource = this.getResource(req);
-    const url = `https://s3.${this.region}.amazonaws.com/${resource}`;
-    const method = req.method;
-    const body = req.body;
 
-    // Setup headers
-    const headers: AxiosHeaders = new AxiosHeaders();
-    /*
+    // Convert headers to the format that the AWS SDK expects
+    const headers: Record<string, string> = {};
     for (const [key, value] of Object.entries(req.headers)) {
-      headers.set(key, value);
-    } */
-    headers['authorization'] = authHeader;
+      headers[key] = value as string;
+    }
 
+    const httpRequest = new HttpRequest({
+      method: req.method,
+      protocol: 'https',
+      hostname: `s3.${this.region}.amazonaws.com`,
+      headers: {
+        ...headers,
+        host: `s3.${this.region}.amazonaws.com`,
+      },
+      path
+    });
+
+    const signedRequest = await this.signer.sign(httpRequest);
+    const axiosHeaders = new AxiosHeaders(signedRequest.headers);
+
+    console.log(headers);
     try {
-      const result = await firstValueFrom(this.http.get(url, {headers}));
+      const result = await firstValueFrom(this.http.get(`https://s3.${this.region}.amazonaws.com${path}`, { headers: axiosHeaders }));
+      // console.log(result);
       return result;
     } catch (e) {
-      console.log(e);
-      throw e;
+      // console.error(e);
     }
-
-    return firstValueFrom(this.http.request({
-      method: method,
-      url: url,
-    }));
-  }
-
-  private getAuthenticationHeader(req: Request): string {
-    const httpVerb = req.method;
-    const contentMd5 = req.headers['content-md5'];
-    const contentType = req.headers['content-type'];
-    const date = req.headers['x-amz-date'];
-    const canonicalizedAmzHeaders = this.getCanonicalizedAmzHeaders(req);
-    const canonicalizedResource = this.getCanonicalizedResource(req);
-    const stringToSign = `${httpVerb}\n${contentMd5}\n${contentType}\n${date}\n${canonicalizedAmzHeaders}${canonicalizedResource}`;
-
-    // Perform HMAC-SHA1
-    let hmac = crypto.createHmac('sha1', this.accessKeySecret);
-    hmac.update(stringToSign);
-    const signature = hmac.digest('base64');
-
-    return `AWS ${this.accessKey}:${signature}`;
-  }
-
-  private getCanonicalizedResource(req: Request): string {
-    let resourceString = '';
-    const resource = this.getResource(req);
-
-    // Check if this is a bucket request
-    const bucket = resource.split('/')[0];
-    if (bucket) {
-      resourceString += `/${resource}`;
-    } else {
-      resourceString += '/';
-    }
-
-    console.log('Resource string', resourceString);
-
-
-    return resourceString;
-  }
-
-  private getCanonicalizedAmzHeaders(req: Request): string {
-    return '';
-  }
-
-  private getResource(req: Request): string {
-    return req.url.replace(this.PATH_PREFIX, '');
+    throw new Error('Not implemented');
   }
 }
