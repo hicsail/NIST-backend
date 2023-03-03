@@ -6,6 +6,7 @@ import { OrganizationModule } from './organization/organization.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import configuration from './config/configuration';
+import { S3ProxyModule } from './s3-proxy/s3-proxy.module';
 
 @Module({
   imports: [
@@ -24,7 +25,8 @@ import configuration from './config/configuration';
       }),
       inject: [ConfigService]
     }),
-    OrganizationModule
+    OrganizationModule,
+    S3ProxyModule
   ]
 })
 export class AppModule {}
