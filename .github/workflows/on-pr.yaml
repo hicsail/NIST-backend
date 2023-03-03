@@ -5,6 +5,30 @@ on:
     branches: [ main ]
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    name: Check for Linting Errors
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - name: Setup NodeJS
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - name: NPM Install
+        run: npm install --only-dev
+        shell: bash
+
+      - name: Check for Linting Issues
+        run: npm run lint
+
+      - name: Check for Prettier Issues
+        run: npm run prettier
+
   docker-build:
     runs-on: ubuntu-latest
     steps:
