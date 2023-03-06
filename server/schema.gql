@@ -48,7 +48,9 @@ input ResourceRequest {
   object: String
   method: RequestMethod!
 
-  """Raw HTTP request which is used to produce the AWS Signature"""
+  """
+  Raw HTTP request which is used to produce the AWS Signature. See AWS HttpRequest
+  """
   request: JSON!
 }
 

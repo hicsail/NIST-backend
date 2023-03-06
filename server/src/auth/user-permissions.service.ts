@@ -87,14 +87,14 @@ export class UserPermissionsService {
       return { authorized: false, signature: undefined, hash: undefined };
     }
 
+    // Make and sign the HttpRequest
     const rawRequest = new HttpRequest({
       ...request.request
     });
-    console.log(rawRequest);
-
     const signedHttpRequest = await this.signer.sign(rawRequest);
-    console.log(signedHttpRequest);
 
+    // Return to the user the signature and SHA256 hash of the body
+    // to apply to their request
     return {
       authorized: true,
       signature: signedHttpRequest.headers.authorization,
@@ -103,27 +103,23 @@ export class UserPermissionsService {
   }
 
   /**
-   * Checks to see if the user has access to the given resource based on
-   * the request method.
-   *
-   * NOTE: The request methods and the cooresponding actions were retrieved
-   * from the Swift API docs:
-   * https://docs.openstack.org/api-ref/object-store/
+   * Check to see if the user as access to perform the given action on the
+   * given resource.
    */
-  async isAllowed(_user: string, request: ResourceRequest): Promise<boolean> {
+  private async isAllowed(user: string, request: ResourceRequest): Promise<boolean> {
     // Account level access requests
     if (request.bucket == null) {
-      return this.accountLevelPermissions(_user, request);
+      return this.accountLevelPermissions(user, request);
     }
 
     // Bucket level access requests
     if (request.object == null) {
-      return this.bucketLevelPermissions(_user, request);
+      return this.bucketLevelPermissions(user, request);
     }
 
     // Object level access requests
     if (request.bucket != null && request.object != null) {
-      return this.objectLevelPermissions(_user, request);
+      return this.objectLevelPermissions(user, request);
     }
 
     // Unknown request, block access and report error
@@ -187,7 +183,6 @@ export class UserPermissionsService {
       throw new Error(`Could not find organization for bucket: ${bucket}`);
     }
     const userPermissions = await this.permsModel.findOne({ user: user, org: org._id });
-    console.log(userPermissions);
     if (!userPermissions) {
       return false;
     }

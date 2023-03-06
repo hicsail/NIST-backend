@@ -18,6 +18,6 @@ export class ResourceRequest {
   @Field(() => RequestMethod)
   method: RequestMethod;
 
-  @Field(() => JSON, { description: 'Raw HTTP request which is used to produce the AWS Signature' })
+  @Field(() => JSON, { description: 'Raw HTTP request which is used to produce the AWS Signature. See AWS HttpRequest' })
   request: any;
 }
