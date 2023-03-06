@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, PipeTransform } from '@nestjs/common';
-import { UserPermissions } from './user-permissions.model';
+import { UserPermissions } from './models/user-permissions.model';
 import { UserPermissionsService } from './user-permissions.service';
 import mongoose from 'mongoose';
 

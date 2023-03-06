@@ -4,12 +4,13 @@ import { JwtAuthGuard } from './jwt.guard';
 import { ResourceRequest } from './dtos/resource.dto';
 import { UserPermissionsService } from './user-permissions.service';
 import { UserContext } from './user.decorator';
-import { UserPermissions } from './user-permissions.model';
+import { UserPermissions } from './models/user-permissions.model';
 import { Organization } from '../organization/organization.model';
 import { OrganizationService } from '../organization/organization.service';
 import { OrganizationPipe } from '../organization/organization.pipe';
 import { UserPermissionsPipe } from './user-permissions.pipe';
 import { PermissionChange } from './dtos/permission-change.dto';
+import {SignedRequest} from './models/signed-request.model';
 
 @Resolver(() => UserPermissions)
 export class AuthResolver {
@@ -27,10 +28,10 @@ export class AuthResolver {
   }
 
   // TODO: When integrating with auth service, solidfy the user object
-  @Query(() => Boolean)
+  @Query(() => SignedRequest)
   @UseGuards(JwtAuthGuard)
-  async authorize(@UserContext() user: any, @Args('resource') request: ResourceRequest): Promise<boolean> {
-    return this.userPermissions.isAllowed(user.sub, request);
+  async authorize(@UserContext() user: any, @Args('resource') request: ResourceRequest): Promise<SignedRequest> {
+    return this.userPermissions.getSignedRequest(user.sub, request);
   }
 
   @Query(() => [UserPermissions])

@@ -19,9 +19,23 @@ type UserPermissions {
   admin: Boolean!
 }
 
+"""Signed Request for a user to access a resource"""
+type SignedRequest {
+  """
+  If the user has been granted access, the other fields are only populated if this is true
+  """
+  authorized: Boolean!
+
+  """The AWS signature"""
+  signature: String
+
+  """SHA256 hash of the body"""
+  hash: String
+}
+
 type Query {
   authenticate: Boolean!
-  authorize(resource: ResourceRequest!): Boolean!
+  authorize(resource: ResourceRequest!): SignedRequest!
   getUserPermissions: [UserPermissions!]!
   getUserPermissionsPerOrganization(organization: ID!): [UserPermissions!]!
   getOriganizations: [Organization!]!
@@ -33,6 +47,9 @@ input ResourceRequest {
   bucket: String
   object: String
   method: RequestMethod!
+
+  """Raw HTTP request which is used to produce the AWS Signature"""
+  request: JSON!
 }
 
 enum RequestMethod {
@@ -45,6 +62,11 @@ enum RequestMethod {
   OPTIONS
   HEAD
 }
+
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON
 
 type Mutation {
   updatePermissions(

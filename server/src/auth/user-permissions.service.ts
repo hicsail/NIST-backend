@@ -5,14 +5,32 @@ import { OrganizationService } from '../organization/organization.service';
 import { Organization } from '../organization/organization.model';
 import { PermissionChange } from './dtos/permission-change.dto';
 import { ResourceRequest } from './dtos/resource.dto';
-import { UserPermissions, UserPermissionsDocument } from './user-permissions.model';
+import { UserPermissions, UserPermissionsDocument } from './models/user-permissions.model';
+import { Sha256 } from '@aws-crypto/sha256-js';
+import { HttpRequest } from '@aws-sdk/protocol-http';
+import { SignatureV4 } from '@aws-sdk/signature-v4';
+import { ConfigService } from '@nestjs/config';
+import {SignedRequest} from './models/signed-request.model';
 
 @Injectable()
 export class UserPermissionsService {
+  private readonly signer: SignatureV4;
+
   constructor(
     @InjectModel(UserPermissions.name) private permsModel: Model<UserPermissionsDocument>,
-    private readonly orgService: OrganizationService
-  ) {}
+    private readonly orgService: OrganizationService,
+    configService: ConfigService
+  ) {
+    this.signer = new SignatureV4({
+      credentials: {
+        accessKeyId: configService.getOrThrow('s3.access_key_id'),
+        secretAccessKey: configService.getOrThrow('s3.access_key_secret')
+      },
+      region: configService.getOrThrow('s3.region'),
+      service: 's3',
+      sha256: Sha256
+    });
+  }
 
   /** Get all user permissions for the given user */
   async getUserPermissions(user: string): Promise<UserPermissions[]> {
@@ -57,6 +75,31 @@ export class UserPermissionsService {
     }
 
     return userPermissions.admin;
+  }
+
+  /**
+   * Determine if the user can perform the given request. If the user can,
+   * a AWS signature and SHA256 hash of the body are returned.
+   */
+  async getSignedRequest(user: string, request: ResourceRequest): Promise<SignedRequest> {
+    const isAllowed = await this.isAllowed(user, request);
+    if (!isAllowed) {
+      return { authorized: false, signature: undefined, hash: undefined };
+    }
+
+    const rawRequest = new HttpRequest({
+      ...request.request
+    });
+    console.log(rawRequest);
+
+    const signedHttpRequest = await this.signer.sign(rawRequest);
+    console.log(signedHttpRequest);
+
+    return {
+      authorized: true,
+      signature: signedHttpRequest.headers.authorization,
+      hash: signedHttpRequest.headers['x-amz-content-sha256']
+    };
   }
 
   /**
@@ -144,6 +187,7 @@ export class UserPermissionsService {
       throw new Error(`Could not find organization for bucket: ${bucket}`);
     }
     const userPermissions = await this.permsModel.findOne({ user: user, org: org._id });
+    console.log(userPermissions);
     if (!userPermissions) {
       return false;
     }

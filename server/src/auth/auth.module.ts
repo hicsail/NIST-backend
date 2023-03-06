@@ -6,16 +6,18 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './jwt.strategy';
 import { JwtAuthGuard } from './jwt.guard';
 import { MongooseModule } from '@nestjs/mongoose';
-import { UserPermissions, UserPermissionsSchema } from './user-permissions.model';
+import { UserPermissions, UserPermissionsSchema } from './models/user-permissions.model';
 import { UserPermissionsService } from './user-permissions.service';
 import { OrganizationModule } from '../organization/organization.module';
 import { UserPermissionsPipe } from './user-permissions.pipe';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: UserPermissions.name, schema: UserPermissionsSchema }]),
     PassportModule,
     OrganizationModule,
+    ConfigModule,
     JwtModule.registerAsync({
       imports: [forwardRef(() => AuthModule)],
       inject: [AuthService],

@@ -1,5 +1,6 @@
 import { InputType, Field, registerEnumType } from '@nestjs/graphql';
 import { RequestMethod } from '@nestjs/common';
+import JSON from 'graphql-type-json';
 
 registerEnumType(RequestMethod, { name: 'RequestMethod' });
 
@@ -16,4 +17,7 @@ export class ResourceRequest {
 
   @Field(() => RequestMethod)
   method: RequestMethod;
+
+  @Field(() => JSON, { description: 'Raw HTTP request which is used to produce the AWS Signature' })
+  request: any;
 }
