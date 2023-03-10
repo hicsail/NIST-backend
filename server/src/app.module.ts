@@ -11,7 +11,8 @@ import configuration from './config/configuration';
   imports: [
     AuthModule,
     ConfigModule.forRoot({
-      load: [configuration]
+      load: [configuration],
+      isGlobal: true
     }),
     GraphQLModule.forRoot({
       autoSchemaFile: 'schema.gql',
