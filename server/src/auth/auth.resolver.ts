@@ -30,13 +30,13 @@ export class AuthResolver {
   @Query(() => Boolean)
   @UseGuards(JwtAuthGuard)
   async authorize(@UserContext() user: any, @Args('resource') request: ResourceRequest): Promise<boolean> {
-    return this.userPermissions.isAllowed(user.sub, request);
+    return this.userPermissions.isAllowed(user.id, request);
   }
 
   @Query(() => [UserPermissions])
   @UseGuards(JwtAuthGuard)
   async getUserPermissions(@UserContext() user: any): Promise<UserPermissions[]> {
-    return this.userPermissions.getUserPermissions(user.sub);
+    return this.userPermissions.getUserPermissions(user.id);
   }
 
   @Mutation(() => UserPermissions)
@@ -47,7 +47,7 @@ export class AuthResolver {
     perms: UserPermissions,
     @Args('change') change: PermissionChange
   ): Promise<UserPermissions> {
-    const requestIsAdmin = await this.userPermissions.canChangePermissions(user.sub, perms.org);
+    const requestIsAdmin = await this.userPermissions.canChangePermissions(user.id, perms.org);
     if (!requestIsAdmin) {
       throw new UnauthorizedException('User not authorized to access organization permissions');
     }
@@ -61,7 +61,7 @@ export class AuthResolver {
     @UserContext() user: any,
     @Args('organization', { type: () => ID }, OrganizationPipe) org: Organization
   ): Promise<UserPermissions[]> {
-    const requestIsAdmin = await this.userPermissions.canChangePermissions(user.sub, org);
+    const requestIsAdmin = await this.userPermissions.canChangePermissions(user.id, org);
     if (!requestIsAdmin) {
       throw new UnauthorizedException('User not authorized to access organization permissions');
     }

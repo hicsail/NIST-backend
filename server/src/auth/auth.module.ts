@@ -10,12 +10,14 @@ import { UserPermissions, UserPermissionsSchema } from './user-permissions.model
 import { UserPermissionsService } from './user-permissions.service';
 import { OrganizationModule } from '../organization/organization.module';
 import { UserPermissionsPipe } from './user-permissions.pipe';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: UserPermissions.name, schema: UserPermissionsSchema }]),
     PassportModule,
     OrganizationModule,
+    HttpModule,
     JwtModule.registerAsync({
       imports: [forwardRef(() => AuthModule)],
       inject: [AuthService],
