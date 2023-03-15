@@ -8,9 +8,6 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     name: Check for Linting Errors
-    defaults:
-      run:
-        working-directory: server/
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3

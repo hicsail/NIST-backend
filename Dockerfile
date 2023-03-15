@@ -2,7 +2,7 @@ FROM node:16-alpine AS NIST
 
 # Copy over the source
 WORKDIR /usr/src/nist
-COPY server/ .
+COPY . .
 RUN apk update && \
     npm install && \
     npm run build
