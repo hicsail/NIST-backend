@@ -1,20 +1,14 @@
 import { forwardRef, Module } from '@nestjs/common';
 import { JwtModule, JwtModuleOptions } from '@nestjs/jwt';
-import { AuthResolver } from './auth.resolver';
 import { AuthService } from './auth.service';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './jwt.strategy';
 import { JwtAuthGuard } from './jwt.guard';
-import { MongooseModule } from '@nestjs/mongoose';
-import { UserPermissions, UserPermissionsSchema } from './user-permissions.model';
-import { UserPermissionsService } from './user-permissions.service';
 import { OrganizationModule } from '../organization/organization.module';
-import { UserPermissionsPipe } from './user-permissions.pipe';
 import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: UserPermissions.name, schema: UserPermissionsSchema }]),
     PassportModule,
     OrganizationModule,
     HttpModule,
@@ -33,11 +27,8 @@ import { HttpModule } from '@nestjs/axios';
     })
   ],
   providers: [
-    AuthResolver,
     AuthService,
     JwtAuthGuard,
-    UserPermissionsService,
-    UserPermissionsPipe,
     {
       provide: JwtStrategy,
       inject: [AuthService],
