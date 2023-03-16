@@ -6,10 +6,12 @@ import { OrganizationModule } from './organization/organization.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import configuration from './config/configuration';
+import { PermsModule } from './perms/perms.module';
 
 @Module({
   imports: [
     AuthModule,
+    PermsModule,
     ConfigModule.forRoot({
       load: [configuration],
       isGlobal: true

@@ -4,5 +4,8 @@ export default () => ({
   },
   auth: {
     publicKeyUrl: process.env.AUTH_PUBLIC_KEY_URL
+  },
+  cargo: {
+    uri: process.env.CARGO_URI
   }
 });

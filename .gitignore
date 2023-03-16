@@ -36,3 +36,6 @@ lerna-debug.log*
 
 # Environment Variables
 .env
+
+# Generated code
+src/perms/graphql/sdk.ts

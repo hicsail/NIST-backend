@@ -1,0 +1,10 @@
+query getPermissions {
+  getPermissions {
+    _id,
+    bucket,
+    read,
+    write,
+    delete,
+    admin
+  }
+}
