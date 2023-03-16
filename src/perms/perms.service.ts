@@ -1,12 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { GraphQLClient } from 'graphql-request';
-import {getSdk} from './graphql/sdk';
+import { getSdk, Sdk } from './graphql/sdk';
 
+/** Wrapper around the generated GraphQL SDK with switching of auth token */
 @Injectable()
 export class PermsService {
+  private readonly sdk: Sdk;
+  private readonly gqlClient: GraphQLClient;
+
   constructor(configService: ConfigService) {
-    const graphqlClient = new GraphQLClient(configService.getOrThrow('cargo.uri'));
-    const sdk = getSdk(graphqlClient);
+    this.gqlClient = new GraphQLClient(configService.getOrThrow('cargo.uri'));
+    this.sdk = getSdk(this.gqlClient);
   }
 }
