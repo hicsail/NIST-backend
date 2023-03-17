@@ -7,7 +7,7 @@ services:
     volumes:
       - nist-staging:/data/db
   nist:
-    image: hicsail/nist-backend:unstable
+    image: hicsail/nist-backend:main
     restart: always
     depends_on:
       - mongo
