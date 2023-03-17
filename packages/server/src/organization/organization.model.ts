@@ -13,8 +13,8 @@ export class Organization {
   @Field()
   name: string;
 
-  @Prop()
-  @Field()
+  @Prop({ type: String, required: false })
+  @Field(() => String, { nullable: true })
   owner: string | null;
 
   @Prop()

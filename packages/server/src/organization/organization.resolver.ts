@@ -14,9 +14,9 @@ export class OrganizationResolver {
   }
 
   @ResolveReference()
-  resolveReference(reference: { __typename: string; _id: string }): Promise<Organization> {
+  async resolveReference(reference: { __typename: string; _id: string }): Promise<Organization> {
     try {
-      const result = this.orgService.find(new mongoose.Types.ObjectId(reference._id));
+      const result = await this.orgService.find(new mongoose.Types.ObjectId(reference._id));
       if (result) {
         return result;
       }

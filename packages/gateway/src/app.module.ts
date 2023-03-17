@@ -21,7 +21,10 @@ import configuration from './config/configuration';
         },
         gateway: {
           supergraphSdl: new IntrospectAndCompose({
-            subgraphs: [{ name: 'nist', url: configSerivce.getOrThrow('nist.uri') }]
+            subgraphs: [
+              { name: 'nist', url: configSerivce.getOrThrow('nist.uri') },
+              { name: 'cargo', url: configSerivce.getOrThrow('cargo.uri') }
+            ]
           })
         }
       })
