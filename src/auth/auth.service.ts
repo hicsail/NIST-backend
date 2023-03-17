@@ -26,4 +26,9 @@ export class AuthService {
 
     return this.publicKey;
   }
+
+  /** Get the token associated with the service account for NIST */
+  async serviceToken(): Promise<string> {
+    return '';
+  }
 }
