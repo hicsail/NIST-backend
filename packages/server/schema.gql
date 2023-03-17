@@ -5,7 +5,7 @@
 type Organization {
   _id: ID!
   name: String!
-  owner: String!
+  owner: String
   bucket: String!
 }
 
