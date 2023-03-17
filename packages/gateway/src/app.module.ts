@@ -2,18 +2,27 @@ import { IntrospectAndCompose } from '@apollo/gateway';
 import { ApolloGatewayDriver, ApolloGatewayDriverConfig } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import configuration from './config/configuration';
 
 @Module({
   imports: [
-    GraphQLModule.forRoot<ApolloGatewayDriverConfig>({
+    ConfigModule.forRoot({
+      load: [configuration]
+    }),
+    GraphQLModule.forRootAsync<ApolloGatewayDriverConfig>({
+      imports: [ConfigModule],
+      inject: [ConfigService],
       driver: ApolloGatewayDriver,
-      gateway: {
-        supergraphSdl: new IntrospectAndCompose({
-          subgraphs: [
-            { name: 'nist', url: 'http://localhost:3000/graphql' }
-          ]
-        })
-      }
+      useFactory: async (configSerivce: ConfigService) => ({
+        gateway: {
+          supergraphSdl: new IntrospectAndCompose({
+            subgraphs: [
+              { name: 'nist', url: configSerivce.getOrThrow('nist.uri') }
+            ]
+          })
+        }
+      })
     })
   ],
 })
