@@ -9,54 +9,6 @@ type Organization {
   bucket: String!
 }
 
-type UserPermissions {
-  _id: ID!
-  user: String!
-  org: Organization!
-  read: Boolean!
-  write: Boolean!
-  delete: Boolean!
-  admin: Boolean!
-}
-
 type Query {
-  authenticate: Boolean!
-  authorize(resource: ResourceRequest!): Boolean!
-  getUserPermissions: [UserPermissions!]!
-  getUserPermissionsPerOrganization(organization: ID!): [UserPermissions!]!
   getOriganizations: [Organization!]!
-}
-
-"""Bucket resource a user is attempting to access"""
-input ResourceRequest {
-  account: String!
-  bucket: String
-  object: String
-  method: RequestMethod!
-}
-
-enum RequestMethod {
-  GET
-  POST
-  PUT
-  DELETE
-  PATCH
-  ALL
-  OPTIONS
-  HEAD
-}
-
-type Mutation {
-  updatePermissions(
-    """ID of the UserPermission to be changed"""
-    permission: ID!
-    change: PermissionChange!
-  ): UserPermissions!
-}
-
-input PermissionChange {
-  read: Boolean
-  write: Boolean
-  delete: Boolean
-  admin: Boolean
 }
