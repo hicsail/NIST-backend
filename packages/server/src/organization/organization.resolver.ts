@@ -14,13 +14,13 @@ export class OrganizationResolver {
   }
 
   @ResolveReference()
-  resolveReference(reference: { __typename: string, _id: string }): Promise<Organization> {
+  resolveReference(reference: { __typename: string; _id: string }): Promise<Organization> {
     try {
       const result = this.orgService.find(new mongoose.Types.ObjectId(reference._id));
       if (result) {
         return result;
       }
-    } catch(e: any) {}
+    } catch (e: any) {}
 
     throw new BadRequestException(`Organization not found with id: ${reference._id}`);
   }

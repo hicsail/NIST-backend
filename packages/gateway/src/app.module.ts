@@ -17,13 +17,11 @@ import configuration from './config/configuration';
       useFactory: async (configSerivce: ConfigService) => ({
         gateway: {
           supergraphSdl: new IntrospectAndCompose({
-            subgraphs: [
-              { name: 'nist', url: configSerivce.getOrThrow('nist.uri') }
-            ]
+            subgraphs: [{ name: 'nist', url: configSerivce.getOrThrow('nist.uri') }]
           })
         }
       })
     })
-  ],
+  ]
 })
 export class AppModule {}

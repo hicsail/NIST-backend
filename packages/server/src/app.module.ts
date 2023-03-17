@@ -19,7 +19,7 @@ import configuration from './config/configuration';
         federation: 2,
         path: 'schema.gql'
       },
-      driver: ApolloFederationDriver,
+      driver: ApolloFederationDriver
     }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
