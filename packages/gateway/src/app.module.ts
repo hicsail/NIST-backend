@@ -15,6 +15,10 @@ import configuration from './config/configuration';
       inject: [ConfigService],
       driver: ApolloGatewayDriver,
       useFactory: async (configSerivce: ConfigService) => ({
+        autoSchemaFile: {
+          path: 'schema.gql',
+          federation: 2
+        },
         gateway: {
           supergraphSdl: new IntrospectAndCompose({
             subgraphs: [{ name: 'nist', url: configSerivce.getOrThrow('nist.uri') }]
