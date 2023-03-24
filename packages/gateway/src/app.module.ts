@@ -1,4 +1,4 @@
-import { IntrospectAndCompose } from '@apollo/gateway';
+import { IntrospectAndCompose, RemoteGraphQLDataSource } from '@apollo/gateway';
 import { ApolloGatewayDriver, ApolloGatewayDriverConfig } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
@@ -20,6 +20,17 @@ import configuration from './config/configuration';
           federation: 2
         },
         gateway: {
+          buildService: ({ url }) => {
+            return new RemoteGraphQLDataSource({
+              url,
+              willSendRequest({ request, context }) {
+                if (context.req && context.req.headers) {
+                  // Copy over authentication
+                  request.http!.headers.set('authorization', context.req.headers.authorization);
+                }
+              }
+            });
+          },
           supergraphSdl: new IntrospectAndCompose({
             subgraphs: [
               { name: 'nist', url: configSerivce.getOrThrow('nist.uri') },
