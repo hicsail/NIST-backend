@@ -4,5 +4,8 @@ export default () => ({
   },
   cargo: {
     uri: process.env.GATEWAY_CARGO_URI
+  },
+  auth: {
+    uri: process.env.AUTH_URI
   }
 });

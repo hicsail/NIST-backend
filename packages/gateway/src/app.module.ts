@@ -14,7 +14,7 @@ import configuration from './config/configuration';
       imports: [ConfigModule],
       inject: [ConfigService],
       driver: ApolloGatewayDriver,
-      useFactory: async (configSerivce: ConfigService) => ({
+      useFactory: async (configService: ConfigService) => ({
         autoSchemaFile: {
           path: 'schema.gql',
           federation: 2
@@ -33,8 +33,9 @@ import configuration from './config/configuration';
           },
           supergraphSdl: new IntrospectAndCompose({
             subgraphs: [
-              { name: 'nist', url: configSerivce.getOrThrow('nist.uri') },
-              { name: 'cargo', url: configSerivce.getOrThrow('cargo.uri') }
+              { name: 'nist', url: configService.getOrThrow('nist.uri') },
+              { name: 'cargo', url: configService.getOrThrow('cargo.uri') },
+              { name: 'auth', url: configService.getOrThrow('auth.uri') }
             ]
           })
         }
