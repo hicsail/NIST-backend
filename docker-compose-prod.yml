@@ -1,0 +1,30 @@
+version: '2'
+services:
+  mongo:
+    container_name: nist-mongo-production
+    image: mongo
+    ports: ["27023:27017"]
+    restart: "always"
+    volumes:
+      - nist-mongo-production:/data/db
+  nist:
+    container_name: nist-backend-production
+    image: hicsail/nist-backend:main
+    restart: always
+    depends_on:
+      - mongo
+    ports: ["3005:3000"]
+    env_file:
+      - stack.env
+  gateway:
+    container_name: nist-gateway-production
+    image: hicsail/nist-gateway:main
+    restart: always
+    depends_on:
+      - nist
+    ports: ["3007:3001"]
+    env_file:
+      - stack.env
+volumes:
+  nist-mongo-production:
+    external: true
