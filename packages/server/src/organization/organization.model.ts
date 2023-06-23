@@ -20,6 +20,10 @@ export class Organization {
   @Prop()
   @Field()
   bucket: string;
+
+  @Prop()
+  @Field()
+  logoURL: string;
 }
 
 export type OrganizationDocument = Organization & Document;
