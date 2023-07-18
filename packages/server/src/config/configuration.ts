@@ -7,6 +7,7 @@ export default () => ({
   },
   jupyterhub: {
     apiKey: process.env.JUPYTERHUB_API_KEY,
-    apiUrl: process.env.JUPYTERHUB_API_URL
+    apiUrl: process.env.JUPYTERHUB_API_URL,
+    publicUrl: process.env.JUPTERHUB_PUBLIC_URL
   }
 });
