@@ -5,6 +5,7 @@ import { ApolloFederationDriver, ApolloFederationDriverConfig } from '@nestjs/ap
 import { OrganizationModule } from './organization/organization.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JupyterhubModule } from './jupyterhub/jupyterhub.module';
 import configuration from './config/configuration';
 
 @Module({
@@ -28,7 +29,9 @@ import configuration from './config/configuration';
       }),
       inject: [ConfigService]
     }),
-    OrganizationModule
+    OrganizationModule,
+    JupyterhubModule,
+    AuthModule
   ]
 })
 export class AppModule {}

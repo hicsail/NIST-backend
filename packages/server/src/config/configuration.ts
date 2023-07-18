@@ -4,5 +4,9 @@ export default () => ({
   },
   auth: {
     publicKeyUrl: process.env.AUTH_PUBLIC_KEY_URL
+  },
+  jupyterhub: {
+    apiKey: process.env.JUPYTERHUB_API_KEY,
+    apiUrl: process.env.JUPYTERHUB_API_URL
   }
 });

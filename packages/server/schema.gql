@@ -13,3 +13,11 @@ type Organization {
 type Query {
   getOriganizations: [Organization!]!
 }
+
+type Mutation {
+  """Create new JupyterNotebook for user"""
+  nistGetJupterNotebook(fileURL: String!, fileName: String!): String!
+
+  """Delete a running user notebook"""
+  nistDeleteJupyterNotebook: Boolean!
+}

@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { HttpService } from '@nestjs/axios';
 import {TokenPayload} from 'src/auth/user.dto';
 
 @Injectable()
@@ -8,7 +7,7 @@ export class JupyterhubService {
   private readonly jupyterURL: string;
   private readonly apiKey: string;
 
-  constructor(configService: ConfigService, private readonly httpService: HttpService) {
+  constructor(configService: ConfigService) {
     this.jupyterURL = configService.getOrThrow('jupyterhub.apiUrl');
     this.apiKey = configService.getOrThrow('jupyterhub.apiKey');
   }
