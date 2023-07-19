@@ -15,11 +15,13 @@ export class JupyterhubService {
   private readonly client: ReturnType<typeof createClient<paths>>;
   private readonly publicBaseUrl: string;
 
-  constructor(configService: ConfigService,
-              @InjectModel(JupyterHubUser.name) private readonly jupyterHubUserModel: Model<JupyterHubUserDocument>) {
+  constructor(
+    configService: ConfigService,
+    @InjectModel(JupyterHubUser.name) private readonly jupyterHubUserModel: Model<JupyterHubUserDocument>
+  ) {
     const jupyterURL = configService.getOrThrow('jupyterhub.apiUrl');
     const apiKey = configService.getOrThrow('jupyterhub.apiKey');
-    this.publicBaseUrl = configService.getOrThrow('jupyterhub.publicUrl')
+    this.publicBaseUrl = configService.getOrThrow('jupyterhub.publicUrl');
 
     // Make the OpenAPI client for JupyterHub
     this.client = createClient<paths>({
@@ -29,7 +31,6 @@ export class JupyterhubService {
       }
     });
   }
-
 
   /**
    * Creates a Jupyter Notebook for the given user where the provided file
@@ -60,9 +61,7 @@ export class JupyterhubService {
 
     // Construct the URL that includes the path to the file and the user's
     // token
-    // const url = `${this.publicBaseUrl}${serverURL}lab/tree/${encodeuricomponent(filename)}?token=${token.token!}`;
     const url = `${this.publicBaseUrl}${serverURL}lab/tree/${encodeURIComponent(fileName)}?token=${jupyterUser.token}`;
-
     return url;
   }
 
@@ -72,8 +71,11 @@ export class JupyterhubService {
   async createNotebook(user: JupyterHubUser, fileURL: string, fileName: string): Promise<void> {
     // Make the request for the new notebook, need the casting to handle
     // that typically a body is not present
-    const requestBody = { 'fileURL': fileURL, 'fileName': fileName } as any;
-    const newServerResponse = await this.client.post('/users/{name}/server', { params: { path: { name: user.name } }, body: requestBody });
+    const requestBody = { fileURL: fileURL, fileName: fileName } as any;
+    const newServerResponse = await this.client.post('/users/{name}/server', {
+      params: { path: { name: user.name } },
+      body: requestBody
+    });
 
     if (newServerResponse.error) {
       throw new Error('Failed to make JupyterNotebook instance');
@@ -84,14 +86,14 @@ export class JupyterhubService {
    * Stop any running user server
    */
   private async stopUserServer(user: JupyterHubUser): Promise<void> {
-    await this.client.del('/users/{name}/server', { params: { path: { name: user.name } } })
+    await this.client.del('/users/{name}/server', { params: { path: { name: user.name } } });
   }
 
   /**
    * Check if the user is registerd with JupyterHub, if not, create the user
    * in JupyterHub
    */
-  private async getOrCreateUser(user: TokenPayload): Promise<JupyterHubUser>  {
+  private async getOrCreateUser(user: TokenPayload): Promise<JupyterHubUser> {
     // If the user already exists, return that user
     const existingUser = await this.jupyterHubUserModel.findOne({ name: user.id });
     if (existingUser) {
