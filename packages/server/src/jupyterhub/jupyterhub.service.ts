@@ -61,7 +61,7 @@ export class JupyterhubService {
     // Construct the URL that includes the path to the file and the user's
     // token
     // const url = `${this.publicBaseUrl}${serverURL}lab/tree/${encodeuricomponent(filename)}?token=${token.token!}`;
-    const url = `${this.publicBaseUrl}${serverURL}?token=${jupyterUser.token}`;
+    const url = `${this.publicBaseUrl}${serverURL}lab/tree/${encodeURIComponent(fileName)}?token=${jupyterUser.token}`;
 
     return url;
   }
@@ -105,11 +105,8 @@ export class JupyterhubService {
       console.error(newUserResponse);
     }
 
-    console.log(newUserResponse);
-
     // Make the token for the user
     const token = await this.genUserToken(newUserResponse.data);
-    console.log(token);
 
     // Store the result for next time the user is requested
     return await this.jupyterHubUserModel.create({ name: newUserResponse.data.name!, token: token.token! });
