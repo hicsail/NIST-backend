@@ -8,7 +8,7 @@ import { JupyterHubUser, JupyterHubUserDocument } from './jupyterhub-user.model'
 import { InjectModel } from '@nestjs/mongoose';
 
 type JupyterUserBackend = components['schemas']['User'];
-type JupterToken = components['schemas']['Token'];
+type JupyterToken = components['schemas']['Token'];
 
 @Injectable()
 export class JupyterhubService {
@@ -117,7 +117,7 @@ export class JupyterhubService {
   /**
    * Generate an authentication token for the user
    */
-  private async genUserToken(user: JupyterUserBackend): Promise<JupterToken> {
+  private async genUserToken(user: JupyterUserBackend): Promise<JupyterToken> {
     const tokenResponse = await this.client.post('/users/{name}/tokens', { params: { path: { name: user.name! } } });
 
     if (tokenResponse.error) {
