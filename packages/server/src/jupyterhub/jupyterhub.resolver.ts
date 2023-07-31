@@ -18,9 +18,4 @@ export class JupyterhubResolver {
   ): Promise<string> {
     return this.jupyterHubService.getJupterNotebook(user, fileURL, fileName);
   }
-
-  @Mutation(() => Boolean, { description: 'Delete a running user notebook' })
-  async nistDeleteJupyterNotebook(@UserContext() user: TokenPayload) {
-    return true;
-  }
 }
