@@ -45,7 +45,7 @@ export class JupyterhubService {
    */
   async getJupterNotebook(user: TokenPayload, fileURL: string, fileName: string): Promise<string> {
     // Get the JupyterHub User
-    let jupyterUser = await this.getOrCreateUser(user);
+    const jupyterUser = await this.getOrCreateUser(user);
 
     // Stop any existing servers
     await this.stopUserServer(jupyterUser);
