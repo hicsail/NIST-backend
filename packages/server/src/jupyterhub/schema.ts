@@ -106,13 +106,6 @@ export interface paths {
            * If unspecified, use api_page_default_limit.
            */
           limit?: number;
-          /**
-           * @description Include stopped servers in user model(s).
-           * Added in JupyterHub 3.0.
-           * Allows retrieval of information about stopped servers,
-           * such as activity and state fields.
-           */
-          include_stopped_servers?: boolean;
         };
       };
       responses: {
@@ -454,19 +447,8 @@ export interface paths {
             expires_in?: number;
             /** @description A note attached to the token for future bookkeeping */
             note?: string;
-            /**
-             * @description A list of role names from which to derive scopes.
-             * This is a shortcut for assigning collections of scopes;
-             * Tokens do not retain role assignment.
-             * (Changed in 3.0: roles are immediately resolved to scopes
-             * instead of stored on roles.)
-             */
+            /** @description A list of role names that the token should have */
             roles?: (string)[];
-            /**
-             * @description A list of scopes that the token should have.
-             * (new in JupyterHub 3.0).
-             */
-            scopes?: (string)[];
           };
         };
       };
@@ -658,38 +640,6 @@ export interface paths {
         /** @description The users have been removed from the group */
         200: {
           content: {
-          };
-        };
-      };
-    };
-  };
-  "/groups/{name}/properties": {
-    /**
-     * Set the group properties.
-     * 
-     * Added in JupyterHub 3.2.
-     */
-    put: {
-      parameters: {
-        path: {
-          /** @description group name */
-          name: string;
-        };
-      };
-      /** @description The new group properties, as a JSON dict. */
-      requestBody: {
-        content: {
-          "application/json": Record<string, never>;
-        };
-      };
-      responses: {
-        /**
-         * @description The properties have been updated.
-         * The updated group model is returned.
-         */
-        200: {
-          content: {
-            "application/json": components["schemas"]["Group"];
           };
         };
       };
@@ -1008,15 +958,8 @@ export interface components {
        * @description Timestamp of last-seen activity from the user
        */
       last_activity?: string;
-      /**
-       * @description The servers for this user.
-       * By default: only includes _active_ servers.
-       * Changed in 3.0: if `?include_stopped_servers` parameter is specified,
-       * stopped servers will be included as well.
-       */
-      servers?: {
-        [key: string]: components["schemas"]["Server"] | undefined;
-      };
+      /** @description The active servers for this user. */
+      servers?: (components["schemas"]["Server"])[];
       /**
        * @description Authentication state of the user. Only available with admin:users:auth_state
        * scope. None otherwise.
@@ -1031,15 +974,6 @@ export interface components {
        * Will always be false when any transition is pending.
        */
       ready?: boolean;
-      /**
-       * @description Whether the server is stopped. Added in JupyterHub 3.0,
-       * and only useful when using the `?include_stopped_servers`
-       * request parameter.
-       * Now that stopped servers may be included (since JupyterHub 3.0),
-       * this is the simplest way to select stopped servers.
-       * Always equivalent to `not (ready or pending)`.
-       */
-      stopped?: boolean;
       /**
        * @description The currently pending action, if any.
        * A server is not ready if an action is pending.
@@ -1098,15 +1032,6 @@ export interface components {
       name?: string;
       /** @description The names of users who are members of this group */
       users?: (string)[];
-      /**
-       * @description Group properties (a dictionary).
-       * 
-       * Unused by JupyterHub itself,
-       * but an extension point to store information about groups.
-       * 
-       * Added in JupyterHub 3.2.
-       */
-      properties?: Record<string, never>;
       /** @description The names of roles this group has */
       roles?: (string)[];
     };
@@ -1140,10 +1065,8 @@ export interface components {
       user?: string;
       /** @description The service that owns the token (undefined of owned by a user) */
       service?: string;
-      /** @description Deprecated in JupyterHub 3, always an empty list. Tokens have 'scopes' starting from JupyterHub 3. */
+      /** @description The names of roles this token has */
       roles?: (string)[];
-      /** @description List of scopes this token has been assigned. New in JupyterHub 3. In JupyterHub 2.x, tokens were assigned 'roles' insead of scopes. */
-      scopes?: (string)[];
       /** @description A note about the token, typically describing what it was created for. */
       note?: string;
       /**

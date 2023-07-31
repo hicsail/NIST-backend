@@ -20,7 +20,7 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "jupyter:client-gen": "openapi-typescript https://jupyterhub.readthedocs.io/en/4.0.1/_static/rest-api.yml -o ./src/jupyterhub/schema.ts"
+    "jupyter:client-gen": "openapi-typescript https://jupyterhub.readthedocs.io/en/2.3.1/_static/rest-api.yml -o ./src/jupyterhub/schema.ts"
   },
   "dependencies": {
     "@apollo/subgraph": "^2.3.5",
