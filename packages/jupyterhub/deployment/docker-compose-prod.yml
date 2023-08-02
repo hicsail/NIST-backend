@@ -1,6 +1,6 @@
 version: '2'
 services:
-  jupyterhub:
+  nist-jupyterhub-prod:
     name: nist-jupyterhub-prod
     image: hicsail/nist-jupyterhub:main
     ports: ["8000:8000"]

@@ -1,6 +1,6 @@
 version: '2'
 services:
-  jupyterhub:
+  nist-jupyterhub-staging:
     name: nist-jupyterhub-staging
     image: hicsail/nist-jupyterhub:main
     ports: ["8001:8000"]
