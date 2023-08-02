@@ -8,6 +8,7 @@ services:
       - ../../../stack.env
     volumes:
       - nist-jupyterhub-staging
+      - /var/run/docker.sock:/var/run/docker.sock
 
 volumes:
   nist-jupyterhub-staging:
