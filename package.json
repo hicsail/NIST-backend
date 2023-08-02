@@ -13,7 +13,8 @@
     "test": "npm run test --workspaces --if-present"
   },
   "workspaces": [
-    "./packages/*"
+    "./packages/server",
+    "./packages/gateway"
   ],
   "repository": {
     "type": "git",

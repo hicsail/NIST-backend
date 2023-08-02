@@ -6,10 +6,11 @@ The NIST-Racer project is an effort to provide a platform for working on the COV
 
 ## Project Structure
 
-| Name         | Path               | Purpose                               |
-| ------------ | ------------------ | ------------------------------------- |
-| NIST-Backend | `packages/server`  | NIST backend and project data storage |
-| NIST-Gateway | `packages/gateway` | NIST gateway for GraphQL interface    |
+| Name            | Path                  | Purpose                               |
+| --------------- | --------------------- | ------------------------------------- |
+| NIST-Backend    | `packages/server`     | NIST backend and project data storage |
+| NIST-Gateway    | `packages/gateway`    | NIST gateway for GraphQL interface    |
+| NIST-JupyterHub | `packages/jupyterhub` | NIST Deployment of JupyterHub
 
 ## Running the Application
 
