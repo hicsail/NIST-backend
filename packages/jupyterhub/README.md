@@ -1,5 +1,17 @@
 # NIST JupyterHub
 
+## Introduction
+
+This folder contains the needed logic for running a custom deployment of
+JupyterHub. The deployment sets up access for the NIST backend to act as
+a service account, this allowing the NIST backend to manage user Jupyter
+Notebook servers. Additionally, the custom deployment contains code for a
+JupyterHub spawner that creates Jupyter Notebook instances in containers with
+a provided file already included in the instance
+
+For information on the settings the instance is running with, refer to
+`./jupyterhub_config.py`.
+
 ## Development Instructions
 
 1. Create network
