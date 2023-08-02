@@ -7,7 +7,6 @@ import sys
 # as this config file
 config_dir = pathlib.Path(__file__).parent.resolve()
 env_file_path = config_dir / '.env'
-print(env_file_path)
 load_dotenv(dotenv_path=env_file_path)
 
 c = get_config()
@@ -17,7 +16,7 @@ c = get_config()
 c.JupyterHub.hub_ip = '0.0.0.0'
 # the hostname/ip that should be used to connect to the hub
 # this is usually the hub container's name
-c.JupyterHub.hub_connect_ip = 'jupyterhub'
+c.JupyterHub.hub_connect_ip = os.getenv('JUPYTERHUB_CONTAINER_NAME')
 
 ## Authenticator Setting
 # Use null authenticator so login is only possible through API
@@ -29,7 +28,7 @@ c.JupyterHub.spawner_class = 'filespawner.FileSpawner'
 
 
 # Network used to communicate with user containers
-c.DockerSpawner.network_name = 'jupyterhub'
+c.DockerSpawner.network_name = os.getenv('JUPYTERHUB_NETWORK_NAME')
 
 # Delete containers when they are stopped
 c.DockerSpawner.remove = True
