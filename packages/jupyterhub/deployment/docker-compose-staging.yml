@@ -1,15 +1,21 @@
 version: '2'
 services:
   nist-jupyterhub-staging:
-    name: nist-jupyterhub-staging
+    container_name: nist-jupyterhub-staging
     image: hicsail/nist-jupyterhub:main
     ports: ["8001:8000"]
     env_file:
       - ../../../stack.env
     volumes:
-      - nist-jupyterhub-staging
+      - nist-jupyterhub-staging:/srv/jupyterhub
       - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - jupyterhub-staging
 
 volumes:
   nist-jupyterhub-staging:
+    external: true
+
+networks:
+  jupyterhub-staging:
     external: true

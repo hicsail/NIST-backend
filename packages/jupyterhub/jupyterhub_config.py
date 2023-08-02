@@ -11,6 +11,19 @@ load_dotenv(dotenv_path=env_file_path)
 
 c = get_config()
 
+# Allow JupyterHub to be in an iframe
+c.JupyterHub.tornado_settings = {
+    'headers': {
+         'Content-Security-Policy': 'frame-ancestors *',
+    }
+}
+c.Spawner.args = ['''--NotebookApp.tornado_settings={
+  'headers':{
+    'Content-Security-Policy': 'frame-ancestors *',
+  }
+}''']
+c.JupyterHub.tornado_settings = {"cookie_options": {"SameSite": "None", "Secure": True}}
+
 ## Network Settings
 # we need the hub to listen on all ips when it is in a container
 c.JupyterHub.hub_ip = '0.0.0.0'

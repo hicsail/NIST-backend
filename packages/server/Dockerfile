@@ -1,4 +1,4 @@
-FROM node:16-alpine AS NIST
+FROM node:18-alpine AS NIST
 
 # Copy over the source
 WORKDIR /usr/src/nist
