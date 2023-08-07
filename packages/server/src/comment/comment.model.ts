@@ -1,6 +1,7 @@
 import { Directive, Field, ID, ObjectType } from '@nestjs/graphql';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
+import { TokenPayload } from 'src/auth/user.dto';
 
 @Schema()
 @ObjectType()
@@ -19,7 +20,7 @@ export class Comment {
 
   @Prop()
   @Field()
-  userId: string;
+  user: TokenPayload;
 
   @Prop({ type: Date, required: true, default: Date.now })
   @Field()

@@ -4,6 +4,7 @@ import { Comment, CommentDocument } from './comment.model';
 import mongoose, { Model } from 'mongoose';
 import { CreateCommentInput } from './comment.dto';
 import { File, FileDocument } from 'src/file/file.model';
+import { TokenPayload } from 'src/auth/user.dto';
 
 @Injectable()
 export class CommentService {
@@ -12,8 +13,8 @@ export class CommentService {
     @InjectModel(File.name) private fileModel: Model<FileDocument>
   ) {}
 
-  async create(createCommentInput: CreateCommentInput): Promise<Comment> {
-    const newComment = new this.commentModel(createCommentInput);
+  async create(createCommentInput: CreateCommentInput, user: TokenPayload): Promise<Comment> {
+    const newComment = new this.commentModel({ ...createCommentInput, user });
     await newComment.save();
 
     if (createCommentInput.parentId) {
