@@ -3,10 +3,7 @@ import { Field, InputType } from '@nestjs/graphql';
 @InputType()
 export class CreateCommentInput {
   @Field()
-  bucket: string;
-
-  @Field()
-  key: string;
+  fileId: string;
 
   @Field()
   userId: string;

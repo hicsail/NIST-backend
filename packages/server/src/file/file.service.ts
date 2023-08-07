@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { File, FileDocument } from './file.model';
-import mongoose, { Model } from 'mongoose';
+import { Model } from 'mongoose';
 import { CreateFileInput } from './file.dto';
 
 @Injectable()
@@ -13,16 +13,9 @@ export class FileService {
     return createFile.save();
   }
 
-  findById(id: mongoose.Types.ObjectId): Promise<File | null> {
+  findByFileId(id: string): Promise<File | null> {
     return this.fileModel
-      .findById(id)
-      .populate({ path: 'comments', populate: { path: 'replies' } })
-      .exec();
-  }
-
-  findByBucketAndKey(bucket: string, key: string): Promise<File | null> {
-    return this.fileModel
-      .findOne({ bucket, key })
+      .findOne({ fileId: id })
       .populate({ path: 'comments', populate: { path: 'replies' } })
       .exec();
   }

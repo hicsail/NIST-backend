@@ -25,15 +25,14 @@ scalar DateTime
 
 type File {
   _id: ID!
+  fileId: String!
   bucket: String!
-  key: String!
   comments: [Comment!]!
 }
 
 type Query {
   getOriganizations: [Organization!]!
-  getFileById(id: String!): File!
-  getFileByBucketAndKey(bucket: String!, key: String!): File!
+  getFileByFileId(fileId: String!): File!
 }
 
 type Mutation {
@@ -45,13 +44,12 @@ type Mutation {
 }
 
 input CreateFileInput {
+  fileId: String!
   bucket: String!
-  key: String!
 }
 
 input CreateCommentInput {
-  bucket: String!
-  key: String!
+  fileId: String!
   userId: String!
   parentId: String!
   content: String!

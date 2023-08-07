@@ -3,8 +3,8 @@ import { Field, ID, InputType } from '@nestjs/graphql';
 @InputType()
 export class CreateFileInput {
   @Field()
-  bucket: string;
+  fileId: string;
 
   @Field()
-  key: string;
+  bucket: string;
 }

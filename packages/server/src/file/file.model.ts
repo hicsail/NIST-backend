@@ -12,11 +12,11 @@ export class File {
 
   @Prop()
   @Field()
-  bucket: string;
+  fileId: string;
 
   @Prop()
   @Field()
-  key: string;
+  bucket: string;
 
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }], default: [] })
   @Field(() => [Comment])

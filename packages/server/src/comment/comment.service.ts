@@ -19,10 +19,7 @@ export class CommentService {
     if (createCommentInput.parentId) {
       await this.commentModel.updateOne({ _id: createCommentInput.parentId }, { $push: { replies: newComment._id } });
     } else {
-      await this.fileModel.updateOne(
-        { bucket: createCommentInput.bucket, key: createCommentInput.key },
-        { $push: { comments: newComment._id } }
-      );
+      await this.fileModel.updateOne({ fileId: createCommentInput.fileId }, { $push: { comments: newComment._id } });
     }
 
     return newComment;
