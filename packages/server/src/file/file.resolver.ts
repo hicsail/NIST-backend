@@ -16,4 +16,9 @@ export class FileResolver {
   async addFile(@Args('input') input: CreateFileInput) {
     return this.fileService.create(input);
   }
+
+  @Mutation(() => File)
+  async deleteFile(@Args('fileId') fileId: string) {
+    return this.fileService.removeFile(fileId);
+  }
 }

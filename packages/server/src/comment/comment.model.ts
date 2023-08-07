@@ -9,6 +9,14 @@ export class Comment {
   @Field(() => ID)
   _id: mongoose.Types.ObjectId;
 
+  @Prop({ required: true })
+  @Field()
+  fileId: string;
+
+  @Prop()
+  @Field()
+  parentId: string;
+
   @Prop()
   @Field()
   userId: string;

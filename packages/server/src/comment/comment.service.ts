@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Comment, CommentDocument } from './comment.model';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { CreateCommentInput } from './comment.dto';
 import { File, FileDocument } from 'src/file/file.model';
 
@@ -23,5 +23,10 @@ export class CommentService {
     }
 
     return newComment;
+  }
+
+  async removeComment(id: string): Promise<Comment | null> {
+    await this.commentModel.deleteMany({ parentId: id }).exec();
+    return this.commentModel.findByIdAndDelete(new mongoose.Types.ObjectId(id)).exec();
   }
 }

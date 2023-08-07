@@ -12,6 +12,8 @@ type Organization {
 
 type Comment {
   _id: ID!
+  fileId: String!
+  parentId: String!
   userId: String!
   date: DateTime!
   content: String!
@@ -37,7 +39,9 @@ type Query {
 
 type Mutation {
   addFile(input: CreateFileInput!): File!
+  deleteFile(fileId: String!): File!
   addComment(input: CreateCommentInput!): Comment!
+  deleteComment(id: String!): Comment!
 
   """Create new JupyterNotebook for user"""
   nistGetJupterNotebook(fileURL: String!, fileName: String!): String!
