@@ -2,8 +2,11 @@ import { Args, Mutation, Resolver } from '@nestjs/graphql';
 import { CommentService } from './comment.service';
 import { Comment } from './comment.model';
 import { CreateCommentInput } from './comment.dto';
+import { UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from 'src/auth/jwt.guard';
 
 @Resolver()
+@UseGuards(JwtAuthGuard)
 export class CommentResolver {
   constructor(private commentService: CommentService) {}
 

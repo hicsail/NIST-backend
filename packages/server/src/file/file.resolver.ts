@@ -2,8 +2,11 @@ import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { FileService } from './file.service';
 import { File } from './file.model';
 import { CreateFileInput } from './file.dto';
+import { UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from 'src/auth/jwt.guard';
 
 @Resolver()
+@UseGuards(JwtAuthGuard)
 export class FileResolver {
   constructor(private fileService: FileService) {}
 
