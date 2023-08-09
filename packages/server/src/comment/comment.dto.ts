@@ -5,7 +5,7 @@ export class CreateCommentInput {
   @Field()
   fileId: string;
 
-  @Field()
+  @Field({ nullable: true })
   parentId?: string;
 
   @Field()

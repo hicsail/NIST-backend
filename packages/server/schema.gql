@@ -10,11 +10,15 @@ type Organization {
   logoURL: String!
 }
 
+type UserModel {
+  id: ID!
+}
+
 type Comment {
   _id: ID!
   fileId: String!
   parentId: ID
-  user: String!
+  user: UserModel!
   date: DateTime!
   content: String!
   replies: [Comment!]!
@@ -54,7 +58,6 @@ input CreateFileInput {
 
 input CreateCommentInput {
   fileId: String!
-  user: String!
-  parentId: String!
+  parentId: String
   content: String!
 }

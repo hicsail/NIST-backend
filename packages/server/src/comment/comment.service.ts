@@ -14,7 +14,7 @@ export class CommentService {
   ) {}
 
   async create(createCommentInput: CreateCommentInput, user: string): Promise<Comment> {
-    const newComment = new this.commentModel({ createCommentInput, user });
+    const newComment = new this.commentModel({ ...createCommentInput, user });
     await newComment.save();
 
     if (createCommentInput.parentId) {
