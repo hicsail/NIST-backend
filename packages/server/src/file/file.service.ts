@@ -18,10 +18,7 @@ export class FileService {
   }
 
   findByFileId(id: string): Promise<File | null> {
-    return this.fileModel
-      .findOne({ fileId: id })
-      .populate({ path: 'comments', populate: { path: 'replies' } })
-      .exec();
+    return this.fileModel.findOne({ fileId: id }).exec();
   }
 
   async removeFile(id: string): Promise<File | null> {

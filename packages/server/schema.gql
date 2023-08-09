@@ -13,8 +13,8 @@ type Organization {
 type Comment {
   _id: ID!
   fileId: String!
-  parentId: String!
-  userId: String!
+  parentId: ID
+  user: String!
   date: DateTime!
   content: String!
   replies: [Comment!]!
@@ -54,7 +54,7 @@ input CreateFileInput {
 
 input CreateCommentInput {
   fileId: String!
-  userId: String!
+  user: String!
   parentId: String!
   content: String!
 }

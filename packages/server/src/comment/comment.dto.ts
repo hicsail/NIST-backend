@@ -6,6 +6,9 @@ export class CreateCommentInput {
   fileId: string;
 
   @Field()
+  user: string;
+
+  @Field()
   parentId?: string;
 
   @Field()

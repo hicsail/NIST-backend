@@ -13,8 +13,8 @@ export class CommentService {
     @InjectModel(File.name) private fileModel: Model<FileDocument>
   ) {}
 
-  async create(createCommentInput: CreateCommentInput, user: TokenPayload): Promise<Comment> {
-    const newComment = new this.commentModel({ ...createCommentInput, user });
+  async create(createCommentInput: CreateCommentInput, user: string): Promise<Comment> {
+    const newComment = new this.commentModel({ createCommentInput, user });
     await newComment.save();
 
     if (createCommentInput.parentId) {
@@ -24,6 +24,14 @@ export class CommentService {
     }
 
     return newComment;
+  }
+
+  async findByIds(ids: mongoose.Schema.Types.ObjectId[]): Promise<Comment[]> {
+    return this.commentModel.find({ _id: { $in: ids } }).exec();
+  }
+
+  async findByFileId(fileId: string): Promise<Comment[]> {
+    return this.commentModel.find({ fileId }).exec();
   }
 
   async removeComment(id: string): Promise<Comment | null> {

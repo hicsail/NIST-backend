@@ -8,7 +8,7 @@ import { Comment } from 'src/comment/comment.model';
 @Directive('@key(fields: "_id")')
 export class File {
   @Field(() => ID)
-  _id: mongoose.Types.ObjectId;
+  _id: mongoose.Schema.Types.ObjectId;
 
   @Prop()
   @Field()
@@ -19,7 +19,7 @@ export class File {
   bucket: string;
 
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }], default: [] })
-  @Field(() => [Comment])
+  @Field(() => [Comment], { nullable: true })
   comments: mongoose.Schema.Types.ObjectId[];
 }
 

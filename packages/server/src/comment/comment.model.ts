@@ -1,26 +1,25 @@
 import { Directive, Field, ID, ObjectType } from '@nestjs/graphql';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
-import { TokenPayload } from 'src/auth/user.dto';
 
 @Schema()
 @ObjectType()
 @Directive('@key(fields: "_id")')
 export class Comment {
   @Field(() => ID)
-  _id: mongoose.Types.ObjectId;
+  _id: mongoose.Schema.Types.ObjectId;
 
   @Prop({ required: true })
   @Field()
   fileId: string;
 
-  @Prop()
-  @Field()
-  parentId: string;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Comment', required: false })
+  @Field(() => ID, { nullable: true })
+  parentId: mongoose.Schema.Types.ObjectId | null;
 
   @Prop()
   @Field()
-  user: TokenPayload;
+  user: string;
 
   @Prop({ type: Date, required: true, default: Date.now })
   @Field()
