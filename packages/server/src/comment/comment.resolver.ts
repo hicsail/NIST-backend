@@ -17,7 +17,7 @@ export class CommentResolver {
     return this.commentService.create(input, user.id);
   }
 
-  @Mutation(() => Comment)
+  @Mutation(() => Boolean)
   async deleteComment(@Args('id') id: string) {
     return this.commentService.removeComment(id);
   }

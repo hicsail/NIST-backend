@@ -4,7 +4,6 @@ import { Comment, CommentDocument } from './comment.model';
 import mongoose, { Model } from 'mongoose';
 import { CreateCommentInput } from './comment.dto';
 import { File, FileDocument } from 'src/file/file.model';
-import { TokenPayload } from 'src/auth/user.dto';
 
 @Injectable()
 export class CommentService {
@@ -34,8 +33,9 @@ export class CommentService {
     return this.commentModel.find({ fileId }).exec();
   }
 
-  async removeComment(id: string): Promise<Comment | null> {
+  async removeComment(id: string): Promise<boolean> {
     await this.commentModel.deleteMany({ parentId: id }).exec();
-    return this.commentModel.findByIdAndDelete(new mongoose.Types.ObjectId(id)).exec();
+    const deleted = await this.commentModel.findByIdAndDelete(id).exec();
+    return !!deleted;
   }
 }

@@ -43,9 +43,9 @@ type Query {
 
 type Mutation {
   addFile(input: CreateFileInput!): File!
-  deleteFile(fileId: String!): File!
+  deleteFile(fileId: String!): Boolean!
   addComment(input: CreateCommentInput!): Comment!
-  deleteComment(id: String!): Comment!
+  deleteComment(id: String!): Boolean!
 
   """Create new JupyterNotebook for user"""
   nistGetJupterNotebook(fileURL: String!, fileName: String!): String!
