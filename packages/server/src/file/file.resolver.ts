@@ -29,6 +29,6 @@ export class FileResolver {
 
   @ResolveField('comments', () => [Comment])
   async getComments(@Parent() file: File) {
-    return this.commentService.findByFileId(file.fileId);
+    return this.commentService.findByFile(file.fileId);
   }
 }

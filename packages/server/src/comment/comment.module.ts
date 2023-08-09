@@ -4,6 +4,7 @@ import { Comment, CommentSchema } from './comment.model';
 import { CommentService } from './comment.service';
 import { CommentResolver } from './comment.resolver';
 import { File, FileSchema } from 'src/file/file.model';
+import { FileService } from 'src/file/file.service';
 
 @Module({
   imports: [
@@ -12,6 +13,6 @@ import { File, FileSchema } from 'src/file/file.model';
       { name: File.name, schema: FileSchema }
     ])
   ],
-  providers: [CommentService, CommentResolver]
+  providers: [CommentService, CommentResolver, FileService]
 })
 export class CommentModule {}

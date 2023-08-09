@@ -1,6 +1,7 @@
 import { Directive, Field, ID, ObjectType } from '@nestjs/graphql';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
+import { File } from 'src/file/file.model';
 
 @ObjectType()
 @Directive('@key(fields: "id")')
@@ -19,8 +20,8 @@ export class Comment {
   _id: mongoose.Schema.Types.ObjectId;
 
   @Prop({ required: true })
-  @Field()
-  fileId: string;
+  @Field(() => File)
+  file: string;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Comment', required: false })
   @Field(() => ID, { nullable: true })

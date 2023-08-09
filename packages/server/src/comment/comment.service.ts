@@ -19,7 +19,7 @@ export class CommentService {
     if (createCommentInput.parentId) {
       await this.commentModel.updateOne({ _id: createCommentInput.parentId }, { $push: { replies: newComment._id } });
     } else {
-      await this.fileModel.updateOne({ fileId: createCommentInput.fileId }, { $push: { comments: newComment._id } });
+      await this.fileModel.updateOne({ file: createCommentInput.file }, { $push: { comments: newComment._id } });
     }
 
     return newComment;
@@ -29,8 +29,8 @@ export class CommentService {
     return this.commentModel.find({ _id: { $in: ids } }).exec();
   }
 
-  async findByFileId(fileId: string): Promise<Comment[]> {
-    return this.commentModel.find({ fileId }).exec();
+  async findByFile(file: string): Promise<Comment[]> {
+    return this.commentModel.find({ file }).exec();
   }
 
   async removeComment(id: string): Promise<boolean> {
