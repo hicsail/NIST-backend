@@ -30,7 +30,7 @@ export class CommentService {
   }
 
   async findByFile(file: string): Promise<Comment[]> {
-    return this.commentModel.find({ file }).exec();
+    return this.commentModel.find({ file, parentId: null }).exec();
   }
 
   async removeComment(id: string): Promise<boolean> {
