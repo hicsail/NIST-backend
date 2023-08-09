@@ -19,8 +19,9 @@ export class Comment {
   @Field(() => ID)
   _id: mongoose.Schema.Types.ObjectId;
 
+  // refer to fileId in file.model.ts, NOT _id
   @Prop({ required: true })
-  @Field(() => File)
+  @Field(() => File, { description: "UUID of the file which is fileId in file's model" })
   file: string;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Comment', required: false })
