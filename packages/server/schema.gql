@@ -16,7 +16,7 @@ type UserModel {
 
 type Comment {
   _id: ID!
-  fileId: String!
+  file: File!
   parentId: ID
   user: UserModel!
   date: DateTime!
@@ -57,7 +57,7 @@ input CreateFileInput {
 }
 
 input CreateCommentInput {
-  fileId: String!
+  file: String!
   parentId: String
   content: String!
 }
