@@ -15,12 +15,12 @@ export class CommentResolver {
   constructor(private commentService: CommentService, private fileService: FileService) {}
 
   @Mutation(() => Comment)
-  async addComment(@UserContext() user: TokenPayload, @Args('input') input: CreateCommentInput) {
+  async addComment(@UserContext() user: TokenPayload, @Args('input') input: CreateCommentInput): Promise<Comment> {
     return this.commentService.create(input, user.id);
   }
 
   @Mutation(() => Boolean)
-  async deleteComment(@Args('id') id: string) {
+  async deleteComment(@Args('id') id: string): Promise<boolean> {
     return this.commentService.removeComment(id);
   }
 
@@ -29,7 +29,7 @@ export class CommentResolver {
     return this.commentService.findByIds(comment.replies);
   }
 
-  @ResolveField('file', () => File)
+  @ResolveField('file', () => File, { nullable: true })
   async getFile(@Parent() comment: Comment): Promise<File | null> {
     return this.fileService.findByFileId(comment.file);
   }
