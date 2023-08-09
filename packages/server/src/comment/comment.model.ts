@@ -2,6 +2,15 @@ import { Directive, Field, ID, ObjectType } from '@nestjs/graphql';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
 
+@ObjectType()
+@Directive('@key(fields: "id")')
+@Directive('@extends')
+export class UserModel {
+  @Field(() => ID)
+  @Directive('@external')
+  id: string;
+}
+
 @Schema()
 @ObjectType()
 @Directive('@key(fields: "_id")')
@@ -18,7 +27,7 @@ export class Comment {
   parentId: mongoose.Schema.Types.ObjectId | null;
 
   @Prop()
-  @Field()
+  @Field(() => UserModel, { description: 'ID of the user from the Auth Microservice' })
   user: string;
 
   @Prop({ type: Date, required: true, default: Date.now })
