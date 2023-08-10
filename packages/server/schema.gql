@@ -10,11 +10,54 @@ type Organization {
   logoURL: String!
 }
 
+type UserModel {
+  id: ID!
+}
+
+type Comment {
+  _id: ID!
+  file: File!
+  parentId: ID
+  user: UserModel!
+  date: DateTime!
+  content: String!
+  replies: [Comment!]!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type File {
+  _id: ID!
+  fileId: String!
+  bucket: String!
+  comments: [Comment!]!
+}
+
 type Query {
   getOriganizations: [Organization!]!
+  getFileByFileId(fileId: String!): File!
 }
 
 type Mutation {
+  addFile(input: CreateFileInput!): File!
+  deleteFile(fileId: String!): Boolean!
+  addComment(input: CreateCommentInput!): Comment!
+  deleteComment(id: String!): Boolean!
+
   """Create new JupyterNotebook for user"""
   nistGetJupterNotebook(fileURL: String!, fileName: String!): String!
+}
+
+input CreateFileInput {
+  fileId: String!
+  bucket: String!
+}
+
+input CreateCommentInput {
+  file: String!
+  parentId: String
+  content: String!
 }
