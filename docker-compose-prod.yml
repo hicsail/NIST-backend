@@ -3,7 +3,6 @@ services:
   mongo:
     container_name: nist-mongo-production
     image: mongo
-    ports: ["27023:27017"]
     restart: "always"
     volumes:
       - nist-mongo-production:/data/db

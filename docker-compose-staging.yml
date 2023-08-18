@@ -2,7 +2,6 @@ version: '2'
 services:
   mongo:
     image: mongo
-    ports: ["27023:27017"]
     restart: "always"
     volumes:
       - nist-staging:/data/db
