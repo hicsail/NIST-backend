@@ -8,6 +8,9 @@ export class CreateCommentInput {
   @Field({ nullable: true })
   parentId?: string;
 
+  @Field({ nullable: true })
+  replyTo?: string;
+
   @Field()
   content: string;
 }

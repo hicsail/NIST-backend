@@ -16,9 +16,10 @@ type UserModel {
 
 type Comment {
   _id: ID!
-  file: File!
+  file: File
   parentId: ID
   user: UserModel!
+  replyTo: UserModel
   date: DateTime!
   content: String!
   replies: [Comment!]!
@@ -38,7 +39,7 @@ type File {
 
 type Query {
   getOriganizations: [Organization!]!
-  getFileByFileId(fileId: String!): File!
+  getFileByFileId(fileId: String!): File
 }
 
 type Mutation {
@@ -59,5 +60,6 @@ input CreateFileInput {
 input CreateCommentInput {
   file: String!
   parentId: String
+  replyTo: String
   content: String!
 }

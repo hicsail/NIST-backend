@@ -32,6 +32,10 @@ export class Comment {
   @Field(() => UserModel, { description: 'ID of the user from the Auth Microservice' })
   user: string;
 
+  @Prop({ required: false })
+  @Field(() => UserModel, { nullable: true, description: 'ID of the user from the Auth Microservice' })
+  replyTo: string;
+
   @Prop({ type: Date, required: true, default: Date.now })
   @Field()
   date: Date;
