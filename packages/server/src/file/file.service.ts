@@ -22,7 +22,7 @@ export class FileService {
   }
 
   async removeFile(id: string): Promise<boolean> {
-    await this.commentModel.deleteMany({ fileId: id }).exec();
+    await this.commentModel.deleteMany({ file: id }).exec();
     const deleted = await this.fileModel.findOneAndDelete({ fileId: id }).exec();
     return !!deleted;
   }

@@ -38,4 +38,11 @@ export class CommentResolver {
   resolveUser(@Parent() comment: Comment): any {
     return { __typename: 'UserModel', id: comment.user };
   }
+
+  @ResolveField('replyTo', () => UserModel, { nullable: true })
+  resolveReplyToUser(@Parent() comment: Comment): any {
+    if (!comment.replyTo) return null;
+
+    return { __typename: 'UserModel', id: comment.replyTo };
+  }
 }
