@@ -23,6 +23,10 @@ export class Organization {
 
   @Prop()
   @Field()
+  protocolBucket: string;
+
+  @Prop()
+  @Field()
   logoURL: string;
 }
 
