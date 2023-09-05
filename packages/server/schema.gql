@@ -7,6 +7,7 @@ type Organization {
   name: String!
   owner: String
   bucket: String!
+  protocolBucket: String!
   logoURL: String!
 }
 
