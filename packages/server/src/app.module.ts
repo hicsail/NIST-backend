@@ -19,8 +19,7 @@ import { CommentModule } from './comment/comment.module';
     }),
     GraphQLModule.forRoot<ApolloFederationDriverConfig>({
       autoSchemaFile: {
-        federation: 2,
-        path: 'schema.gql'
+        federation: 2
       },
       driver: ApolloFederationDriver
     }),

@@ -16,7 +16,6 @@ import configuration from './config/configuration';
       driver: ApolloGatewayDriver,
       useFactory: async (configService: ConfigService) => ({
         autoSchemaFile: {
-          path: 'schema.gql',
           federation: 2
         },
         gateway: {
